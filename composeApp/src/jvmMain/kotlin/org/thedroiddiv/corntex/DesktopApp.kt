@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.dp
 import org.thedroiddiv.corntex.menu.ContextMenuArea
 import org.thedroiddiv.corntex.menu.ContextMenuItem
 import org.thedroiddiv.corntex.menu.ContextSubmenuItem
+import org.thedroiddiv.corntex.menu.Divider
 
 @Composable
 fun DesktopApp() {
@@ -43,14 +44,14 @@ fun DesktopApp() {
                     },
                 )
             ),
-            // TODO: Divide
+            Divider,
             ContextMenuItem("Rename...") {
                 // Another custom action
             },
             ContextMenuItem("Delete") {
                 // Another custom action
             },
-            // TODO: Divider
+            Divider,
             ContextMenuItem("Cut") {
                 // Another custom action
             },
@@ -66,7 +67,7 @@ fun DesktopApp() {
             ContextMenuItem("Paste") {
                 // Another custom action
             },
-            // TODO: Divider
+            Divider,
             ContextSubmenuItem(
                 label = "Git",
                 submenuItems = listOf(

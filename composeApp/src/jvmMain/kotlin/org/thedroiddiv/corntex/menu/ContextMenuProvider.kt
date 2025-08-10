@@ -205,6 +205,8 @@ class ContextSubmenuItem(
     val submenuItems: List<ContextMenuItem>
 ) : ContextMenuItem(label, {})
 
+data object Divider : ContextMenuItem("", {})
+
 /**
  * Data container contains all [ContextMenuItem]s were defined previously in the hierarchy.
  * [ContextMenuRepresentation] uses it to display context menu.
@@ -291,7 +293,8 @@ interface ContextMenuRepresentation {
         "Use another overload that loads items only when they are needed",
         replaceWith = ReplaceWith("Representation(state, { items }")
     )
-    fun Representation(state: ContextMenuState, items: List<ContextMenuItem>) = Representation(state) { items }
+    fun Representation(state: ContextMenuState, items: List<ContextMenuItem>) =
+        Representation(state) { items }
 
     @Composable
     fun Representation(state: ContextMenuState, items: () -> List<ContextMenuItem>)

@@ -4,12 +4,14 @@ package org.thedroiddiv.corntex.menu
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
@@ -18,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.JPopupTextMenu
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -79,6 +82,7 @@ val DarkDefaultContextMenuRepresentation = DefaultContextMenuRepresentation(dark
 class DefaultContextMenuRepresentation(
     private val colors: ContextMenuColor
 ) : ContextMenuRepresentation {
+
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     override fun Representation(state: ContextMenuState, items: () -> List<ContextMenuItem>) {
@@ -133,32 +137,47 @@ class DefaultContextMenuRepresentation(
                         .verticalScroll(rememberScrollState())
                 ) {
                     items().forEach { item ->
-                        if (item is ContextSubmenuItem) {
-                            MenuItemContent(
-                                itemHoverColor = colors.selectedContainerColor,
-                                onClick = {
-                                    state.status = ContextMenuState.Status.Closed
-                                    item.onClick()
+                        when (item) {
+                            is ContextSubmenuItem -> {
+                                MenuItemContent(
+                                    itemHoverColor = colors.selectedContainerColor,
+                                    onClick = {
+                                        state.status = ContextMenuState.Status.Closed
+                                        item.onClick()
+                                    },
+                                    onHover = { println("Hovered: $it") }
+                                ) {
+                                    BasicText(
+                                        text = item.label,
+                                        style = TextStyle(color = colors.contentColor)
+                                    )
                                 }
-                            // TODO: add hover state
-                            ) {
-                                BasicText(
-                                    text = item.label,
-                                    style = TextStyle(color = colors.contentColor)
+                            }
+
+                            is Divider -> {
+                                Box(
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .height(((8.25)).dp)
+                                        .padding(vertical = 4.dp)
+                                        .background(colors.disableContentColor.copy(0.4f))
                                 )
                             }
-                        } else {
-                            MenuItemContent(
-                                itemHoverColor = colors.selectedContainerColor,
-                                onClick = {
-                                    state.status = ContextMenuState.Status.Closed
-                                    item.onClick()
+
+                            else -> {
+                                MenuItemContent(
+                                    itemHoverColor = colors.selectedContainerColor,
+                                    onClick = {
+                                        state.status = ContextMenuState.Status.Closed
+                                        item.onClick()
+                                    },
+                                    onHover = { }
+                                ) {
+                                    BasicText(
+                                        text = item.label,
+                                        style = TextStyle(color = colors.contentColor)
+                                    )
                                 }
-                            ) {
-                                BasicText(
-                                    text = item.label,
-                                    style = TextStyle(color = colors.contentColor)
-                                )
                             }
                         }
                     }
@@ -172,17 +191,21 @@ class DefaultContextMenuRepresentation(
 private fun MenuItemContent(
     itemHoverColor: Color,
     onClick: () -> Unit,
+    onHover: (Boolean) -> Unit,
     content: @Composable RowScope.() -> Unit
 ) {
     var hovered by remember { mutableStateOf(false) }
     Row(
         modifier = Modifier
             .clickable(onClick = onClick)
-            .onHover { hovered = it }
+            .onHover {
+                hovered = it
+                onHover(it)
+            }
             .clip(RoundedCornerShape(4.dp))
             .background(if (hovered) itemHoverColor else Color.Transparent)
             .fillMaxWidth()
-            // Preferred min and max width used during the intrinsic measurement.
+            // Have chosen same as Material implementation, should be updated according to design guidelines
             .sizeIn(
                 minWidth = 112.dp,
                 maxWidth = 280.dp,
