@@ -3,8 +3,8 @@ package org.thedroiddiv.corntex.menu
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
@@ -18,26 +18,24 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.foundation.text.JPopupTextMenu
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.awt.ComposePanel
-import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.KeyEventType
@@ -46,18 +44,23 @@ import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.window.rememberPopupPositionProviderAtPosition
+import com.sun.java.accessibility.util.AWTEventMonitor.addActionListener
 import org.thedroiddiv.corntex.menu.models.ContextMenuColor
 import org.thedroiddiv.corntex.menu.models.darkContextMenuColor
 import org.thedroiddiv.corntex.menu.models.lightContextMenuColor
 import java.awt.Component
 import java.awt.MouseInfo
+import java.awt.event.KeyEvent
 import javax.swing.JMenuItem
 import javax.swing.JPopupMenu
 import javax.swing.SwingUtilities
@@ -86,99 +89,145 @@ class DefaultContextMenuRepresentation(
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     override fun Representation(state: ContextMenuState, items: () -> List<ContextMenuItem>) {
-        ContextMenuImpl(state, items)
+        ContextMenu(colors, state, items)
+    }
+}
+
+class MenuLevel(
+    val items: List<ContextMenuItem>,
+    val position: Offset
+)
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun ContextMenu(
+    colors: ContextMenuColor,
+    rootState: ContextMenuState,
+    rootItems: () -> List<ContextMenuItem>
+) {
+    val status = rootState.status
+    if (status !is ContextMenuState.Status.Open) return
+
+    var menuStack by remember {
+        mutableStateOf(listOf(MenuLevel(items = rootItems(), position = status.rect.center)))
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
-    @Composable
-    private fun ContextMenuImpl(state: ContextMenuState, items: () -> List<ContextMenuItem>) {
-        val status = state.status
-        if (status is ContextMenuState.Status.Open) {
-            var focusManager: FocusManager? by mutableStateOf(null)
-            var inputModeManager: InputModeManager? by mutableStateOf(null)
+    fun openSubmenu(levelIndex: Int, submenu: ContextSubmenuItem, position: Offset) {
+        menuStack = menuStack.take(levelIndex + 1) + MenuLevel(
+            items = submenu.submenuItems,
+            position = position
+        )
+    }
 
-            Popup(
-                properties = PopupProperties(focusable = true),
-                onDismissRequest = { state.status = ContextMenuState.Status.Closed },
-                popupPositionProvider = rememberPopupPositionProviderAtPosition(
-                    positionPx = status.rect.center
-                ),
-                onKeyEvent = {
-                    if (it.type == KeyEventType.KeyDown) {
-                        when (it.key.nativeKeyCode) {
-                            java.awt.event.KeyEvent.VK_DOWN -> {
-                                inputModeManager!!.requestInputMode(InputMode.Keyboard)
-                                focusManager!!.moveFocus(FocusDirection.Next)
-                                true
-                            }
+    fun closeFromLevel(levelIndex: Int) {
+        menuStack = menuStack.take(levelIndex + 1)
+    }
 
-                            java.awt.event.KeyEvent.VK_UP -> {
-                                inputModeManager!!.requestInputMode(InputMode.Keyboard)
-                                focusManager!!.moveFocus(FocusDirection.Previous)
-                                true
-                            }
+    menuStack.forEachIndexed { levelIndex, menuLevel ->
+        MenuPopup(
+            position = menuLevel.position,
+            items = menuLevel.items,
+            onItemClick = { item, offset ->
+                if (item is ContextSubmenuItem) {
+                    openSubmenu(levelIndex, item, offset)
+                } else {
+                    rootState.status = ContextMenuState.Status.Closed
+                    item.onClick()
+                }
+            },
+            colors = colors,
+            onSubmenuExit = { closeFromLevel(levelIndex) },
+        )
+    }
+}
 
-                            else -> false
-                        }
-                    } else {
-                        false
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+private fun MenuPopup(
+    position: Offset,
+    colors: ContextMenuColor,
+    items: List<ContextMenuItem>,
+    onItemClick: (ContextMenuItem, Offset) -> Unit,
+    onSubmenuExit: () -> Unit
+) {
+    var focusManager: FocusManager? by remember { mutableStateOf(null) }
+    var inputModeManager: InputModeManager? by remember { mutableStateOf(null) }
+
+    Popup(
+        properties = PopupProperties(focusable = true),
+        popupPositionProvider = rememberPopupPositionProviderAtPosition(positionPx = position),
+        onDismissRequest = onSubmenuExit,
+        onKeyEvent = {
+            if (it.type == KeyEventType.KeyDown) {
+                when (it.key.nativeKeyCode) {
+                    KeyEvent.VK_DOWN -> {
+                        inputModeManager?.requestInputMode(InputMode.Keyboard)
+                        focusManager?.moveFocus(FocusDirection.Next)
+                        true
                     }
-                },
-            ) {
-                focusManager = LocalFocusManager.current
-                inputModeManager = LocalInputModeManager.current
-                Column(
-                    modifier = Modifier
-                        .shadow(8.dp, RoundedCornerShape(9.dp))
-                        .clip(RoundedCornerShape(9.dp))
-                        .background(colors.containerColor, RoundedCornerShape(9.dp))
-                        .padding(6.dp)
-                        .width(IntrinsicSize.Max)
-                        .verticalScroll(rememberScrollState())
-                ) {
-                    items().forEach { item ->
-                        when (item) {
-                            is ContextSubmenuItem -> {
-                                MenuItemContent(
-                                    itemHoverColor = colors.selectedContainerColor,
-                                    onClick = {
-                                        state.status = ContextMenuState.Status.Closed
-                                        item.onClick()
-                                    },
-                                    onHover = { println("Hovered: $it") }
-                                ) {
-                                    BasicText(
-                                        text = item.label,
-                                        style = TextStyle(color = colors.contentColor)
-                                    )
-                                }
-                            }
 
-                            is Divider -> {
-                                Box(
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .height(((8.25)).dp)
-                                        .padding(vertical = 4.dp)
-                                        .background(colors.disableContentColor.copy(0.4f))
+                    KeyEvent.VK_UP -> {
+                        inputModeManager?.requestInputMode(InputMode.Keyboard)
+                        focusManager?.moveFocus(FocusDirection.Previous)
+                        true
+                    }
+
+                    else -> false
+                }
+            } else false
+        }
+    ) {
+        focusManager = LocalFocusManager.current
+        inputModeManager = LocalInputModeManager.current
+
+        Column(
+            modifier = Modifier
+                .shadow(8.dp, RoundedCornerShape(9.dp))
+                .clip(RoundedCornerShape(9.dp))
+                .background(colors.containerColor, RoundedCornerShape(9.dp))
+                .border(1.dp, colors.borderColor, RoundedCornerShape(9.dp))
+                .padding(6.dp)
+                .width(IntrinsicSize.Max)
+                .verticalScroll(rememberScrollState())
+        ) {
+            items.forEachIndexed { idx, item ->
+                when (item) {
+                    is ContextSubmenuItem -> {
+                        MenuItemContent(
+                            itemHoverColor = colors.selectedContainerColor,
+                            onClick = { positionInParent ->
+                                val offset = Offset(
+                                    position.x + positionInParent.x,
+                                    position.y + positionInParent.y
                                 )
+                                onItemClick(item, offset)
+                            },
+                            onHover = { hovered, relativePosition ->
+                                // TODO: Open submenu
                             }
+                        ) {
+                            BasicText(item.label, style = TextStyle(color = colors.contentColor))
+                        }
+                    }
 
-                            else -> {
-                                MenuItemContent(
-                                    itemHoverColor = colors.selectedContainerColor,
-                                    onClick = {
-                                        state.status = ContextMenuState.Status.Closed
-                                        item.onClick()
-                                    },
-                                    onHover = { }
-                                ) {
-                                    BasicText(
-                                        text = item.label,
-                                        style = TextStyle(color = colors.contentColor)
-                                    )
-                                }
-                            }
+                    is Divider -> Divider(
+                        color = colors.dividerColor,
+                        modifier = Modifier.height(1.dp)
+                    ) // TODO: Do not use from androidx.compose.material
+
+                    else -> {
+                        MenuItemContent(
+                            itemHoverColor = colors.selectedContainerColor,
+                            onClick = { positionInParent ->
+                                val offset = Offset(
+                                    position.x + positionInParent.x,
+                                    position.y + positionInParent.y
+                                )
+                                onItemClick(item, offset)
+                            },
+                            onHover = { _, _ -> }
+                        ) {
+                            BasicText(item.label, style = TextStyle(color = colors.contentColor))
                         }
                     }
                 }
@@ -189,23 +238,31 @@ class DefaultContextMenuRepresentation(
 
 @Composable
 private fun MenuItemContent(
+    modifier: Modifier = Modifier,
     itemHoverColor: Color,
-    onClick: () -> Unit,
-    onHover: (Boolean) -> Unit,
+    onClick: (Offset) -> Unit,
+    onHover: (Boolean, Offset) -> Unit,
     content: @Composable RowScope.() -> Unit
 ) {
     var hovered by remember { mutableStateOf(false) }
+    var positionInParent by remember { mutableStateOf(Offset.Zero) }
     Row(
-        modifier = Modifier
-            .clickable(onClick = onClick)
+        modifier = modifier
+            .clickable(onClick = { onClick(positionInParent) })
+            .onGloballyPositioned { coordinates ->
+                positionInParent = coordinates.positionInParent().run {
+                    Offset(x + coordinates.size.width, y)
+                }
+            }
             .onHover {
-                hovered = it
-                onHover(it)
+                if (hovered != it) {
+                    hovered = it
+                    onHover(it, positionInParent)
+                }
             }
             .clip(RoundedCornerShape(4.dp))
             .background(if (hovered) itemHoverColor else Color.Transparent)
             .fillMaxWidth()
-            // Have chosen same as Material implementation, should be updated according to design guidelines
             .sizeIn(
                 minWidth = 112.dp,
                 maxWidth = 280.dp,

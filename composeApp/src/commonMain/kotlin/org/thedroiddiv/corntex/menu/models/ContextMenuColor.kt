@@ -19,7 +19,9 @@ class ContextMenuColor(
     val contentColor: Color,
     val selectedContainerColor: Color,
     val disabledContainerColor: Color,
-    val disableContentColor: Color
+    val disableContentColor: Color,
+    val borderColor: Color,
+    val dividerColor: Color
 )
 
 val darkContextMenuColor = ContextMenuColor(
@@ -27,7 +29,9 @@ val darkContextMenuColor = ContextMenuColor(
     contentColor = Color(0xFFDDE1E2),
     selectedContainerColor = Color(0xFF1B4173),
     disabledContainerColor = Color(0xFF242328), // TODO: currently same as enabled, check if needs to change
-    disableContentColor = Color(0xFF6E6E73)
+    disableContentColor = Color(0xFF6E6E73),
+    borderColor = Color(0xFF414141),
+    dividerColor = Color(0xFF414141)
 )
 
 val lightContextMenuColor = ContextMenuColor(
@@ -35,6 +39,8 @@ val lightContextMenuColor = ContextMenuColor(
     contentColor = Color(0xFF242424),
     selectedContainerColor = Color(0xFF59A2FF),
     disabledContainerColor = Color(0xFFEDECEC), // TODO: currently same as enabled, check if needs to change
-    disableContentColor = Color(0xFFB0AFAF)
+    disableContentColor = Color(0xFFB0AFAF),
+    borderColor = Color(0xFFD5D4D4),
+    dividerColor = Color(0xFFD5D4D4)
 )
 

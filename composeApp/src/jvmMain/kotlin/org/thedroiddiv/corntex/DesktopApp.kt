@@ -17,71 +17,45 @@ import org.thedroiddiv.corntex.menu.Divider
 fun DesktopApp() {
     ContextMenuArea(items = {
         listOf(
-            ContextMenuItem("New file") {
-                // Custom action
-            },
-            ContextMenuItem("New Folder") {
-                // Another custom action
-            },
-            // TODO: Add divider
-            ContextMenuItem("Open In Split") {
-                // Another custom action
-            },
+            ContextMenuItem("New file") { },
+            ContextMenuItem("New Folder") { },
+            Divider,
+            ContextMenuItem("Open In Split") { },
             ContextSubmenuItem(
                 label = "Open In",
                 submenuItems = listOf(
-                    ContextMenuItem("Finder") {
-                        // Custom action
-                    },
-                    ContextMenuItem("Terminal") {
-                        // Another custom action
-                    },
-                    ContextMenuItem("Associated Applications") {
-                        // Another custom action
-                    },
-                    ContextMenuItem("Browser") {
-                        // Another custom action
-                    },
+                    ContextMenuItem("Finder") { },
+                    ContextMenuItem("Terminal") { },
+                    ContextMenuItem("Associated Applications") { },
+                    ContextMenuItem("Browser") { },
                 )
             ),
             Divider,
-            ContextMenuItem("Rename...") {
-                // Another custom action
-            },
-            ContextMenuItem("Delete") {
-                // Another custom action
-            },
+            ContextMenuItem("Rename...") { },
+            ContextMenuItem("Delete") { },
             Divider,
-            ContextMenuItem("Cut") {
-                // Another custom action
-            },
-            ContextMenuItem("Copy") {
-                // Another custom action
-            },
-            ContextMenuItem("Copy Path") {
-                // Another custom action
-            },
-            ContextMenuItem("Copy Relative Path") {
-                // Another custom action
-            },
-            ContextMenuItem("Paste") {
-                // Another custom action
-            },
+            ContextMenuItem("Cut") { },
+            ContextMenuItem("Copy") { },
+            ContextMenuItem("Copy Path") { },
+            ContextMenuItem("Copy Relative Path") { },
+            ContextMenuItem("Paste") { },
             Divider,
             ContextSubmenuItem(
                 label = "Git",
                 submenuItems = listOf(
-                    ContextMenuItem("Rebase") {
-                        // Custom action
-                    },
-                    ContextMenuItem("Merge") {
-                        // Another custom action
-                    }
+                    ContextMenuItem("Rebase") { },
+                    ContextMenuItem("Merge") { },
+                    ContextSubmenuItem(
+                        label = "GitHub",
+                        submenuItems = listOf(
+                            ContextMenuItem("Pull") { },
+                            ContextMenuItem("Push") { }
+                        )
+                    )
                 )
             )
         )
     }) {
-        // Blue box where context menu will be available
         Box(modifier = Modifier.background(Color.Blue).height(100.dp).width(100.dp))
     }
 }

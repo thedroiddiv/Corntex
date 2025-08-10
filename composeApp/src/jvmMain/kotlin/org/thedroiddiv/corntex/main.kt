@@ -14,7 +14,7 @@ fun main() = application {
         onCloseRequest = ::exitApplication,
         title = "Corntex",
     ) {
-        Box(Modifier.fillMaxSize().background(Color(0x00000000))){
+        Box(Modifier.fillMaxSize().background(Color(0xFF000000))){
             DesktopApp()
         }
     }
