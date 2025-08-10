@@ -82,6 +82,12 @@ class DefaultContextMenuRepresentation(
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     override fun Representation(state: ContextMenuState, items: () -> List<ContextMenuItem>) {
+        ContextMenuImpl(state, items)
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Composable
+    private fun ContextMenuImpl(state: ContextMenuState, items: () -> List<ContextMenuItem>) {
         val status = state.status
         if (status is ContextMenuState.Status.Open) {
             var focusManager: FocusManager? by mutableStateOf(null)
@@ -127,17 +133,33 @@ class DefaultContextMenuRepresentation(
                         .verticalScroll(rememberScrollState())
                 ) {
                     items().forEach { item ->
-                        MenuItemContent(
-                            itemHoverColor = colors.selectedContainerColor,
-                            onClick = {
-                                state.status = ContextMenuState.Status.Closed
-                                item.onClick()
+                        if (item is ContextSubmenuItem) {
+                            MenuItemContent(
+                                itemHoverColor = colors.selectedContainerColor,
+                                onClick = {
+                                    state.status = ContextMenuState.Status.Closed
+                                    item.onClick()
+                                }
+                            // TODO: add hover state
+                            ) {
+                                BasicText(
+                                    text = item.label,
+                                    style = TextStyle(color = colors.contentColor)
+                                )
                             }
-                        ) {
-                            BasicText(
-                                text = item.label,
-                                style = TextStyle(color = colors.contentColor)
-                            )
+                        } else {
+                            MenuItemContent(
+                                itemHoverColor = colors.selectedContainerColor,
+                                onClick = {
+                                    state.status = ContextMenuState.Status.Closed
+                                    item.onClick()
+                                }
+                            ) {
+                                BasicText(
+                                    text = item.label,
+                                    style = TextStyle(color = colors.contentColor)
+                                )
+                            }
                         }
                     }
                 }

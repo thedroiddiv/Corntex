@@ -200,6 +200,11 @@ open class ContextMenuItem(
     }
 }
 
+class ContextSubmenuItem(
+    label: String,
+    val submenuItems: List<ContextMenuItem>
+) : ContextMenuItem(label, {})
+
 /**
  * Data container contains all [ContextMenuItem]s were defined previously in the hierarchy.
  * [ContextMenuRepresentation] uses it to display context menu.
