@@ -297,5 +297,5 @@ interface ContextMenuRepresentation {
  */
 val LocalContextMenuRepresentation:
         ProvidableCompositionLocal<ContextMenuRepresentation> = staticCompositionLocalOf {
-    LightDefaultContextMenuRepresentation
+    DarkDefaultContextMenuRepresentation
 }
