@@ -1,4 +1,5 @@
-package org.thedroiddiv.corntex.menu
+package com.thedroiddiv.menu
+
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -31,7 +32,7 @@ import androidx.compose.ui.util.fastAll
  */
 @Composable
 fun ContextMenuArea(
-    items: () -> List<ContextMenuItem>,
+    items: List<ContextMenuItem>,
     state: ContextMenuState = remember { ContextMenuState() },
     enabled: Boolean = true,
     content: @Composable () -> Unit
@@ -59,7 +60,7 @@ fun ContextMenuArea(
  */
 @Composable
 internal fun ContextMenuArea(
-    items: () -> List<ContextMenuItem>,
+    items: List<ContextMenuItem>,
     state: ContextMenuState,
     modifier: Modifier,
     content: @Composable () -> Unit
@@ -69,8 +70,6 @@ internal fun ContextMenuArea(
         LocalContextMenuRepresentation.current.Representation(state, items)
     }
 }
-
-
 
 /**
  * Detects events that open a context menu (mouse right-clicks).
@@ -208,15 +207,7 @@ class ContextMenuState {
  */
 interface ContextMenuRepresentation {
     @Composable
-    @Deprecated(
-        "Use another overload that loads items only when they are needed",
-        replaceWith = ReplaceWith("Representation(state, { items }")
-    )
-    fun Representation(state: ContextMenuState, items: List<ContextMenuItem>) =
-        Representation(state) { items }
-
-    @Composable
-    fun Representation(state: ContextMenuState, items: () -> List<ContextMenuItem>)
+    fun Representation(state: ContextMenuState, items: List<ContextMenuItem>)
 }
 
 /**

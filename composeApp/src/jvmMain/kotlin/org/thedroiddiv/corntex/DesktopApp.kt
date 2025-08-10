@@ -8,15 +8,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import org.thedroiddiv.corntex.menu.ContextMenuArea
-import org.thedroiddiv.corntex.menu.ContextMenuItem
-import org.thedroiddiv.corntex.menu.ContextSubmenuItem
-import org.thedroiddiv.corntex.menu.Divider
+import com.thedroiddiv.menu.ContextMenuArea
+import com.thedroiddiv.menu.ContextMenuItem
+import com.thedroiddiv.menu.ContextSubmenuItem
+import com.thedroiddiv.menu.Divider
 
 @Composable
 fun DesktopApp() {
-    ContextMenuArea(items = {
-        listOf(
+    ContextMenuArea(
+        items = listOf(
             ContextMenuItem("New file") { },
             ContextMenuItem("New Folder") { },
             Divider,
@@ -55,7 +55,7 @@ fun DesktopApp() {
                 )
             )
         )
-    }) {
+    ) {
         Box(modifier = Modifier.background(Color.Blue).height(100.dp).width(100.dp))
     }
 }

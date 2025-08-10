@@ -1,7 +1,6 @@
-package org.thedroiddiv.corntex.menu
+package com.thedroiddiv.menu
 
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -21,9 +20,7 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -49,23 +46,11 @@ import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.window.rememberPopupPositionProviderAtPosition
-import com.sun.java.accessibility.util.AWTEventMonitor.addActionListener
-import org.thedroiddiv.corntex.menu.models.ContextMenuColor
-import org.thedroiddiv.corntex.menu.models.darkContextMenuColor
-import org.thedroiddiv.corntex.menu.models.lightContextMenuColor
-import java.awt.Component
-import java.awt.MouseInfo
 import java.awt.event.KeyEvent
-import javax.swing.JMenuItem
-import javax.swing.JPopupMenu
-import javax.swing.SwingUtilities
-import javax.swing.event.PopupMenuEvent
-import javax.swing.event.PopupMenuListener
 
 /**
  * Representation of a context menu that is suitable for light themes of the application.
@@ -88,7 +73,7 @@ class DefaultContextMenuRepresentation(
 
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
-    override fun Representation(state: ContextMenuState, items: () -> List<ContextMenuItem>) {
+    override fun Representation(state: ContextMenuState, items: List<ContextMenuItem>) {
         ContextMenu(colors, state, items)
     }
 }
@@ -100,16 +85,16 @@ class MenuLevel(
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun ContextMenu(
+internal fun ContextMenu(
     colors: ContextMenuColor,
     rootState: ContextMenuState,
-    rootItems: () -> List<ContextMenuItem>
+    rootItems: List<ContextMenuItem>
 ) {
     val status = rootState.status
     if (status !is ContextMenuState.Status.Open) return
 
     var menuStack by remember {
-        mutableStateOf(listOf(MenuLevel(items = rootItems(), position = status.rect.center)))
+        mutableStateOf(listOf(MenuLevel(items = rootItems, position = status.rect.center)))
     }
 
     fun openSubmenu(levelIndex: Int, submenu: ContextSubmenuItem, position: Offset) {
@@ -120,7 +105,11 @@ fun ContextMenu(
     }
 
     fun closeFromLevel(levelIndex: Int) {
-        menuStack = menuStack.take(levelIndex + 1)
+        if(menuStack.size != 1) {
+            menuStack = menuStack.take(levelIndex)
+        } else {
+            rootState.status = ContextMenuState.Status.Closed
+        }
     }
 
     menuStack.forEachIndexed { levelIndex, menuLevel ->
@@ -277,61 +266,6 @@ private fun MenuItemContent(
         verticalAlignment = Alignment.CenterVertically
     ) {
         content()
-    }
-}
-
-/**
- * [ContextMenuRepresentation] that uses [JPopupMenu] to show a context menu for [ContextMenuArea].
- *
- * You can use it by overriding [LocalContextMenuRepresentation] on the top level of your application.
- *
- * See also [JPopupTextMenu] that allows more specific customization for the text context menu.
- *
- * @param owner The root component that owns a context menu. Usually it is [ComposeWindow] or [ComposePanel].
- * @param createMenu Describes how to create [JPopupMenu] from list of [ContextMenuItem]
- */
-@ExperimentalFoundationApi
-class JPopupContextMenuRepresentation(
-    private val owner: Component,
-    private val createMenu: (List<ContextMenuItem>) -> JPopupMenu = { items ->
-        JPopupMenu().apply {
-            for (item in items) {
-                add(
-                    JMenuItem(item.label).apply {
-                        addActionListener { item.onClick() }
-                    }
-                )
-            }
-        }
-    },
-) : ContextMenuRepresentation {
-    @Composable
-    override fun Representation(state: ContextMenuState, items: () -> List<ContextMenuItem>) {
-        val isOpen = state.status is ContextMenuState.Status.Open
-        if (isOpen) {
-            val menu = remember {
-                createMenu(items()).apply {
-                    addPopupMenuListener(object : PopupMenuListener {
-                        override fun popupMenuWillBecomeVisible(e: PopupMenuEvent?) = Unit
-
-                        override fun popupMenuWillBecomeInvisible(e: PopupMenuEvent?) {
-                            state.status = ContextMenuState.Status.Closed
-                        }
-
-                        override fun popupMenuCanceled(e: PopupMenuEvent?) = Unit
-                    })
-                }
-            }
-
-            DisposableEffect(Unit) {
-                val mousePosition = MouseInfo.getPointerInfo().location
-                SwingUtilities.convertPointFromScreen(mousePosition, owner)
-                menu.show(owner, mousePosition.x, mousePosition.y)
-                onDispose {
-                    menu.isVisible = false
-                }
-            }
-        }
     }
 }
 

@@ -56,6 +56,9 @@ kotlin {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
             implementation(compose.uiTooling)
+
+            // library with context menu API
+            implementation(projects.lib)
         }
     }
 }
