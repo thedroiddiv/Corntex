@@ -39,6 +39,9 @@ kotlin {
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
+            // todo: check if I can use this dependency for
+            //  androidx.compose.material3.Text
+            //  androidx.compose.material3.Icon
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
@@ -52,6 +55,7 @@ kotlin {
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
+            implementation(compose.uiTooling)
         }
     }
 }
