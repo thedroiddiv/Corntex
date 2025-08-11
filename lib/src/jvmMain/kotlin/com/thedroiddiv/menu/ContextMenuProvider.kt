@@ -1,46 +1,35 @@
 package com.thedroiddiv.menu
 
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.input.pointer.AwaitPointerEventScope
-import androidx.compose.ui.input.pointer.PointerEvent
-import androidx.compose.ui.input.pointer.changedToDown
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.isSecondaryPressed
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.util.fastAll
+import androidx.compose.ui.input.pointer.onPointerEvent
+import androidx.compose.ui.unit.IntOffset
 
-/**
- * Defines a container where context menu is available. Menu is triggered by right mouse clicks.
- * Representation of menu is defined by [LocalContextMenuRepresentation].
- *
- * @param items List of context menu items. Final context menu contains all items from descendant [ContextMenuArea].
- * @param state [ContextMenuState] of menu controlled by this area.
- * @param enabled If false then gesture detector is disabled.
- * @param content The content of the [ContextMenuArea].
- */
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ContextMenuArea(
-    items: List<ContextMenuItem>,
-    state: ContextMenuState = remember { ContextMenuState() },
-    enabled: Boolean = true,
+    items: () -> List<ContextMenuEntry>,
+    modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
+    val state = rememberContextMenuState()
     ContextMenuArea(
         items = items,
         state = state,
-        modifier = Modifier.contextMenuOpenDetector(state, enabled),
+        modifier = modifier,
         content = content
     )
 }
@@ -53,150 +42,105 @@ fun ContextMenuArea(
  * by passing a [modifier] that does so.
  *
  * @param items List of context menu items. Final context menu contains all items from descendant [ContextMenuArea].
- * @param state [ContextMenuState] of menu controlled by this area.
+ * @param state [HierarchicalContextMenuState] of menu controlled by this area.
  * @param modifier The modifier to attach to the element; this should include the trigger that opens
  * the context menu (e.g. on right-click).
  * @param content The content of the [ContextMenuArea].
  */
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
-internal fun ContextMenuArea(
-    items: List<ContextMenuItem>,
-    state: ContextMenuState,
+fun ContextMenuArea(
+    items: () -> List<ContextMenuEntry>,
+    state: HierarchicalContextMenuState,
     modifier: Modifier,
     content: @Composable () -> Unit
 ) {
-    Box(modifier, propagateMinConstraints = true) {
-        content()
-        LocalContextMenuRepresentation.current.Representation(state, items)
-    }
-}
-
-/**
- * Detects events that open a context menu (mouse right-clicks).
- *
- * @param key The pointer input handling coroutine will be cancelled and **re-started** when
- * [contextMenuOpenDetector] is recomposed with a different [key].
- * @param enabled Whether to enable the detection.
- * @param onOpen Invoked when a context menu opening event is detected, with the local offset it
- * should be opened at.
- */
-@ExperimentalFoundationApi
-fun Modifier.contextMenuOpenDetector(
-    key: Any? = Unit,
-    enabled: Boolean = true,
-    onOpen: (Offset) -> Unit
-): Modifier {
-    return if (enabled) {
-        this.pointerInput(key) {
-            awaitEachGesture {
-                val event = awaitEventFirstDown()
-                if (event.buttons.isSecondaryPressed) {
-                    event.changes.forEach { it.consume() }
-                    onOpen(event.changes[0].position)
+    Box(
+        modifier = modifier
+            .onPointerEvent(PointerEventType.Press) {
+                if (it.buttons.isSecondaryPressed) {
+                    it.changes.forEach { it.consume() }
+                    val position = it.changes.first().position
+                    state.show(
+                        position = IntOffset(position.x.toInt(), position.y.toInt()),
+                        items = items()
+                    )
                 }
             }
-        }
-    } else {
-        this
+    ) {
+        content()
+        LocalContextMenuRepresentation.current.Representation(state)
     }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-private fun Modifier.contextMenuOpenDetector(
-    state: ContextMenuState,
-    enabled: Boolean = true
-): Modifier = this.contextMenuOpenDetector(
-    key = state,
-    enabled = enabled && (state.status is ContextMenuState.Status.Closed),
-) { pointerPosition ->
-    state.status = ContextMenuState.Status.Open(Rect(pointerPosition, 0f))
-}
-
-private suspend fun AwaitPointerEventScope.awaitEventFirstDown(): PointerEvent {
-    var event: PointerEvent
-    do {
-        event = awaitPointerEvent()
-    } while (
-        !event.changes.fastAll { it.changedToDown() }
-    )
-    return event
 }
 
 /**
- * Individual element of context menu.
- *
- * @param label The text to be displayed as a context menu item.
- * @param onClick The action to be executed after click on the item.
+ * Base sealed class for any entry that can be displayed in a context menu.
  */
-open class ContextMenuItem(
-    val label: String,
-    val onClick: () -> Unit
-) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || this::class != other::class) return false
+sealed class ContextMenuEntry {
+    data class Single(
+        val label: String,
+        val icon: Painter? = null,
+        val enabled: Boolean = true,
+        val onClick: () -> Unit
+    ) : ContextMenuEntry()
 
-        other as ContextMenuItem
+    data class Submenu(
+        val label: String,
+        val submenuItems: List<ContextMenuEntry>,
+        val icon: Painter? = null,
+        val enabled: Boolean = true
+    ) : ContextMenuEntry()
 
-        if (label != other.label) return false
-        if (onClick != other.onClick) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = label.hashCode()
-        result = 31 * result + onClick.hashCode()
-        return result
-    }
-
-    override fun toString(): String {
-        return "ContextMenuItem(label='$label')"
-    }
+    object Divider : ContextMenuEntry()
 }
 
-class ContextSubmenuItem(
-    label: String,
-    val submenuItems: List<ContextMenuItem>
-) : ContextMenuItem(label, {})
+@Stable
+data class MenuLevel(
+    val items: List<ContextMenuEntry>,
+    val position: IntOffset,
+)
 
-data object Divider : ContextMenuItem("", {})
 
-/**
- * Represents a state of context menu in [ContextMenuArea]. [status] is implemented
- * via [androidx.compose.runtime.MutableState] so it's possible to track it inside @Composable
- * functions.
- */
-class ContextMenuState {
-    sealed class Status {
-        class Open(
-            val rect: Rect
-        ) : Status() {
-            override fun equals(other: Any?): Boolean {
-                if (this === other) return true
-                if (other == null || this::class != other::class) return false
+@Stable
+class HierarchicalContextMenuState {
+    var openMenus by mutableStateOf<List<MenuLevel>>(emptyList())
+        private set
 
-                other as Open
+    fun show(position: IntOffset, items: List<ContextMenuEntry>) {
+        openMenus = listOf(MenuLevel(items = items, position = position))
+    }
 
-                if (rect != other.rect) return false
+    /**
+     * Hides all currently visible context menus.
+     */
+    fun hide() {
+        openMenus = emptyList()
+    }
 
-                return true
+    fun onItemHover(item: ContextMenuEntry, itemBounds: IntOffset) {
+        val itemLevelIndex = openMenus.indexOfFirst { it.items.contains(item) }
+        if (itemLevelIndex == -1) return
+
+        val newMenuStack = openMenus.subList(0, itemLevelIndex + 1)
+
+        openMenus = if (item is ContextMenuEntry.Submenu && item.enabled) {
+            val isAlreadyOpen = newMenuStack.size > itemLevelIndex + 1 &&
+                    newMenuStack.getOrNull(itemLevelIndex + 1)?.items == item.submenuItems
+
+            if (!isAlreadyOpen) {
+                val subMenuPosition = IntOffset(itemBounds.x, itemBounds.y)
+                newMenuStack + MenuLevel(items = item.submenuItems, position = subMenuPosition)
+            } else {
+                newMenuStack
             }
-
-            override fun hashCode(): Int {
-                return rect.hashCode()
-            }
-
-            override fun toString(): String {
-                return "Open(rect=$rect)"
-            }
+        } else {
+            newMenuStack
         }
-
-        data object Closed : Status()
     }
-
-    var status: Status by mutableStateOf(Status.Closed)
 }
+
+@Composable
+fun rememberContextMenuState() = remember { HierarchicalContextMenuState() }
 
 /**
  * Implementations of this interface are responsible for displaying context menus. There are two
@@ -207,7 +151,7 @@ class ContextMenuState {
  */
 interface ContextMenuRepresentation {
     @Composable
-    fun Representation(state: ContextMenuState, items: List<ContextMenuItem>)
+    fun Representation(state: HierarchicalContextMenuState)
 }
 
 /**

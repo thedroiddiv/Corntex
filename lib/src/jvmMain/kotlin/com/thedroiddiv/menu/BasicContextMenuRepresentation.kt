@@ -25,7 +25,7 @@ class DefaultContextMenuRepresentation(
 
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
-    override fun Representation(state: ContextMenuState, items: List<ContextMenuItem>) {
-        ContextMenu(colors, state, items)
+    override fun Representation(state: HierarchicalContextMenuState) {
+        ContextMenu(colors, state)
     }
 }

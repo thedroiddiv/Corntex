@@ -9,52 +9,54 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.thedroiddiv.menu.ContextMenuArea
-import com.thedroiddiv.menu.ContextMenuItem
-import com.thedroiddiv.menu.ContextSubmenuItem
-import com.thedroiddiv.menu.Divider
+import com.thedroiddiv.menu.ContextMenuEntry.Single as ContextMenuItem
+import com.thedroiddiv.menu.ContextMenuEntry.Divider
+import com.thedroiddiv.menu.ContextMenuEntry.Submenu as ContextSubmenuItem
 
 @Composable
 fun DesktopApp() {
     ContextMenuArea(
-        items = listOf(
-            ContextMenuItem("New file") { },
-            ContextMenuItem("New Folder") { },
-            Divider,
-            ContextMenuItem("Open In Split") { },
-            ContextSubmenuItem(
-                label = "Open In",
-                submenuItems = listOf(
-                    ContextMenuItem("Finder") { },
-                    ContextMenuItem("Terminal") { },
-                    ContextMenuItem("Associated Applications") { },
-                    ContextMenuItem("Browser") { },
-                )
-            ),
-            Divider,
-            ContextMenuItem("Rename...") { },
-            ContextMenuItem("Delete") { },
-            Divider,
-            ContextMenuItem("Cut") { },
-            ContextMenuItem("Copy") { },
-            ContextMenuItem("Copy Path") { },
-            ContextMenuItem("Copy Relative Path") { },
-            ContextMenuItem("Paste") { },
-            Divider,
-            ContextSubmenuItem(
-                label = "Git",
-                submenuItems = listOf(
-                    ContextMenuItem("Rebase") { },
-                    ContextMenuItem("Merge") { },
-                    ContextSubmenuItem(
-                        label = "GitHub",
-                        submenuItems = listOf(
-                            ContextMenuItem("Pull") { },
-                            ContextMenuItem("Push") { }
+        items = {
+            listOf(
+                ContextMenuItem("New file") { },
+                ContextMenuItem("New Folder") { },
+                Divider,
+                ContextMenuItem("Open In Split") { },
+                ContextSubmenuItem(
+                    label = "Open In",
+                    submenuItems = listOf(
+                        ContextMenuItem("Finder") { },
+                        ContextMenuItem("Terminal") { },
+                        ContextMenuItem("Associated Applications") { },
+                        ContextMenuItem("Browser") { },
+                    )
+                ),
+                Divider,
+                ContextMenuItem("Rename...") { },
+                ContextMenuItem("Delete") { },
+                Divider,
+                ContextMenuItem("Cut") { },
+                ContextMenuItem("Copy") { },
+                ContextMenuItem("Copy Path") { },
+                ContextMenuItem("Copy Relative Path") { },
+                ContextMenuItem("Paste") { },
+                Divider,
+                ContextSubmenuItem(
+                    label = "Git",
+                    submenuItems = listOf(
+                        ContextMenuItem("Rebase") { },
+                        ContextMenuItem("Merge") { },
+                        ContextSubmenuItem(
+                            label = "GitHub",
+                            submenuItems = listOf(
+                                ContextMenuItem("Pull") { },
+                                ContextMenuItem("Push") { }
+                            )
                         )
                     )
                 )
             )
-        )
+        }
     ) {
         Box(modifier = Modifier.background(Color.Blue).height(100.dp).width(100.dp))
     }
