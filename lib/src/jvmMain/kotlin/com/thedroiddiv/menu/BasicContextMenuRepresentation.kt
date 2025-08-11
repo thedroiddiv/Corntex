@@ -126,6 +126,11 @@ internal fun ContextMenu(
             },
             colors = colors,
             onSubmenuExit = { closeFromLevel(levelIndex) },
+            onDismissRequest = {
+                // TODO: If the dismiss is done outside all menu-popups, then close the entire menu
+                //      if clicked on a menu popup, other than this, keep the clicked menu popup on top
+                rootState.status = ContextMenuState.Status.Closed
+            }
         )
     }
 }
@@ -137,7 +142,8 @@ private fun MenuPopup(
     colors: ContextMenuColor,
     items: List<ContextMenuItem>,
     onItemClick: (ContextMenuItem, Offset) -> Unit,
-    onSubmenuExit: () -> Unit
+    onSubmenuExit: () -> Unit, // when hover out of the submenu
+    onDismissRequest: () -> Unit
 ) {
     var focusManager: FocusManager? by remember { mutableStateOf(null) }
     var inputModeManager: InputModeManager? by remember { mutableStateOf(null) }
@@ -145,7 +151,7 @@ private fun MenuPopup(
     Popup(
         properties = PopupProperties(focusable = true),
         popupPositionProvider = rememberPopupPositionProviderAtPosition(positionPx = position),
-        onDismissRequest = onSubmenuExit,
+        onDismissRequest = onDismissRequest,
         onKeyEvent = {
             if (it.type == KeyEventType.KeyDown) {
                 when (it.key.nativeKeyCode) {
