@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -79,8 +78,13 @@ internal fun ContextMenu(
             onPreviewKeyEvent = { false },
             onKeyEvent = { handleKeyEvent(it, focusManager, onDismissRequest) },
             content = {
-                Box(Modifier.fillMaxSize()) {
-                    // fixme: wrap content size by, should increase when box's new child is added
+                Box(
+                    modifier = Modifier.fillMaxSize()
+                        .clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() }
+                        ) { onDismissRequest() }
+                ) {
                     state.openMenus.forEach { menuLevel ->
                         val zeroPos = state.openMenus[0].position
                         state.openMenus.forEachIndexed { idx, menuLevel ->
