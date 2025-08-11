@@ -29,6 +29,48 @@ fun DesktopApp() {
                         ContextMenuItem("Terminal") { },
                         ContextMenuItem("Associated Applications") { },
                         ContextMenuItem("Browser") { },
+                        ContextSubmenuItem(
+                            label = "Git",
+                            submenuItems = listOf(
+                                ContextMenuItem("Rebase") { },
+                                ContextMenuItem("Merge") { },
+                                ContextSubmenuItem(
+                                    label = "GitHub",
+                                    submenuItems = listOf(
+                                        ContextMenuItem("Pull") { },
+                                        ContextMenuItem("Push") { }
+                                    )
+                                ),
+                                ContextSubmenuItem(
+                                    label = "Git",
+                                    submenuItems = listOf(
+                                        ContextMenuItem("Rebase") { },
+                                        ContextMenuItem("Merge") { },
+                                        ContextSubmenuItem(
+                                            label = "GitHub",
+                                            submenuItems = listOf(
+                                                ContextMenuItem("Pull") { },
+                                                ContextMenuItem("Push") { }
+                                            )
+                                        ),
+                                        ContextSubmenuItem(
+                                            label = "Git",
+                                            submenuItems = listOf(
+                                                ContextMenuItem("Rebase") { },
+                                                ContextMenuItem("Merge") { },
+                                                ContextSubmenuItem(
+                                                    label = "GitHub",
+                                                    submenuItems = listOf(
+                                                        ContextMenuItem("Pull") { },
+                                                        ContextMenuItem("Push") { }
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
                     )
                 ),
                 Divider,
