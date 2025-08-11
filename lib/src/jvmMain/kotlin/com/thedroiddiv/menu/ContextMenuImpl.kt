@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
@@ -20,10 +21,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.ui.input.key.Key
 import androidx.compose.material.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
@@ -43,15 +44,16 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.focusTarget
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -68,6 +70,7 @@ internal fun ContextMenu(
 ) {
     if (state.openMenus.isNotEmpty()) {
         val focusManager = LocalFocusManager.current
+        val density = LocalDensity.current
         Popup(
             alignment = Alignment.TopStart,
             offset = state.openMenus[0].position,
@@ -76,26 +79,25 @@ internal fun ContextMenu(
             onPreviewKeyEvent = { false },
             onKeyEvent = { handleKeyEvent(it, focusManager, onDismissRequest) },
             content = {
-                Box {
+                Box(Modifier.fillMaxSize()) {
+                    // fixme: wrap content size by, should increase when box's new child is added
                     state.openMenus.forEach { menuLevel ->
                         val zeroPos = state.openMenus[0].position
                         state.openMenus.forEachIndexed { idx, menuLevel ->
                             val offset = if (idx == 0) {
-                                Offset(
-                                    (menuLevel.position.x - zeroPos.x).toFloat(),
-                                    (menuLevel.position.y - zeroPos.y).toFloat()
-                                )
+                                IntOffset(0, 0)
                             } else {
                                 val prevOffset = state.openMenus[idx - 1].position
-                                Offset(
-                                    (menuLevel.position.x + prevOffset.x - zeroPos.x).toFloat(),
-                                    (menuLevel.position.y + prevOffset.y - zeroPos.y).toFloat()
+                                IntOffset(
+                                    (menuLevel.position.x + prevOffset.x - zeroPos.x),
+                                    (menuLevel.position.y + prevOffset.y - zeroPos.y)
                                 )
                             }
+
                             Box(
                                 modifier = Modifier.offset(
-                                    x = offset.x.toInt().dp,
-                                    y = offset.y.toInt().dp
+                                    x = with(density) { offset.x.toDp() },
+                                    y = with(density) { offset.y.toDp() }
                                 )
                             ) {
                                 MenuLevelContent(
@@ -166,7 +168,6 @@ private fun MenuItem(
     val isHovered = interactionSource.collectIsHoveredAsState().value
     LaunchedEffect(isHovered) {
         if (isHovered) {
-            state.onItemHover(entry, positionInParent)
             state.onItemHover(entry, positionInParent.let { it.copy(y = it.y - scrollState.value) })
         }
     }
@@ -174,7 +175,6 @@ private fun MenuItem(
     val isFocused = interactionSource.collectIsFocusedAsState().value
     LaunchedEffect(isFocused) {
         if (isFocused) {
-            state.onItemHover(entry, positionInParent)
             state.onItemHover(entry, positionInParent.let { it.copy(y = it.y - scrollState.value) })
         }
     }
@@ -182,10 +182,6 @@ private fun MenuItem(
     Box(
         modifier = modifier.onGloballyPositioned { coordinates ->
             positionInParent = coordinates.positionInParent().run {
-                IntOffset(
-                    0, // x.toInt() + coordinates.size.width,
-                    //y.toInt()
-                )
                 IntOffset((x + coordinates.size.width).toInt(), y.toInt())
             }
         }
