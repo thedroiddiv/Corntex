@@ -121,7 +121,12 @@ class HierarchicalContextMenuState {
                     newMenuStack.getOrNull(itemLevelIndex + 1)?.items == item.submenuItems
 
             if (!isAlreadyOpen) {
-                val subMenuPosition = IntOffset(bottomRight.x, bottomRight.y)
+                val prev = newMenuStack.lastOrNull()
+                val subMenuPosition =if (prev == null) {
+                    IntOffset(bottomRight.x, bottomRight.y)
+                } else {
+                    IntOffset(prev.position.x + bottomRight.x, prev.position.y + bottomRight.y)
+                }
                 newMenuStack + MenuLevel(items = item.submenuItems, position = subMenuPosition)
             } else {
                 newMenuStack
@@ -154,5 +159,5 @@ interface ContextMenuRepresentation {
  */
 val LocalContextMenuRepresentation:
         ProvidableCompositionLocal<ContextMenuRepresentation> = staticCompositionLocalOf {
-    DefaultContextMenuRepresentation()
+    PopupContextMenuRepresentation()
 }
