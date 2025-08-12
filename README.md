@@ -7,7 +7,7 @@ A flexible and hierarchical context menu library for Compose Desktop application
 - **Right-click Detection**: Automatic context menu triggering on right-click  
 - **Hierarchical Menus**: Support for nested submenus with unlimited depth  
 - **Customizable Styling**: Theme-aware design with customizable colors and dimensions  
-- 🔧 **Flexible Items**: Support for clickable items, submenus, and visual dividers  
+- **Flexible Items**: Support for clickable items, submenus, and visual dividers  
   
 ## Quick Start  
   
@@ -61,9 +61,10 @@ fun AdvancedContextMenu() {
         )  
     }  
   ) {  
-        // Your content here Card(modifier = Modifier.size(200.dp)) {    
-        Text("Right-click for advanced menu")  
-    }  
+        // Your content here
+		Card(modifier = Modifier.size(200.dp)) {    
+	        Text("Right-click for advanced menu")  
+	    }  
 } 
 ```  
   
@@ -130,10 +131,10 @@ State holder for managing context menu visibility and hierarchy.
   
 ```kotlin  
 class HierarchicalContextMenuState {  
- val openMenus: List<MenuLevel>
- fun show(position: IntOffset, items: List<ContextMenuEntry>)  
- fun hide()
- fun onItemHover(item: ContextMenuEntry, bottomRight: IntOffset)
+	val openMenus: List<MenuLevel>
+ 	fun show(position: IntOffset, items: List<ContextMenuEntry>)  
+ 	fun hide()
+ 	fun onItemHover(item: ContextMenuEntry, bottomRight: IntOffset)
 }  
 ```  
 
@@ -149,7 +150,9 @@ Creates and remembers a context menu state for the current composition.
 #### contextMenuOpenDetector  
 ```kotlin  
 fun Modifier.contextMenuOpenDetector(  
- state: HierarchicalContextMenuState, items: () -> List<ContextMenuEntry>): Modifier  
+	state: HierarchicalContextMenuState,
+	items: () -> List<ContextMenuEntry>
+): Modifier  
 ```  
 Modifier that detects right-click events and shows the context menu.  
   
