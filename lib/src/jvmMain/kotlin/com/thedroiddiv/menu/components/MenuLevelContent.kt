@@ -3,6 +3,7 @@ package com.thedroiddiv.menu.components
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
@@ -63,22 +64,26 @@ fun MenuLevelContent(
     Surface(
         modifier = modifier
             .widthIn(max = maxWidth)
-            .padding(4.dp)
             .shadow(
                 ContextMenuTheme.tokens.menuElevation,
-                RoundedCornerShape(ContextMenuTheme.tokens.menuCornerRadius)
+                ContextMenuTheme.tokens.menuContainerShape
+            )
+            .border(
+                ContextMenuTheme.tokens.menuOutlineWidth,
+                ContextMenuTheme.colors.borderColor,
+                ContextMenuTheme.tokens.menuContainerShape
             ),
-        shape = RoundedCornerShape(ContextMenuTheme.tokens.menuCornerRadius),
+        shape = ContextMenuTheme.tokens.menuContainerShape,
         color = ContextMenuTheme.colors.containerColor,
         contentColor = ContextMenuTheme.colors.contentColor
     ) {
-        Box(modifier = Modifier.heightIn(max = maxHeight)) {
+        Box(modifier = Modifier.heightIn(max = maxHeight).padding(ContextMenuTheme.tokens.menuContainerPadding)) {
             val scrollState = rememberScrollState()
             Column(
                 modifier = Modifier
                     .focusTarget()
                     .verticalScroll(scrollState),
-                verticalArrangement = Arrangement.spacedBy(2.dp)
+                verticalArrangement = Arrangement.spacedBy(ContextMenuTheme.tokens.menuItemsSpacing)
             ) {
                 items.forEach { item ->
                     MenuItem(
@@ -126,7 +131,6 @@ private fun MenuItem(
     ) {
         when (entry) {
             is ContextMenuEntry.Single -> MenuItemContent(
-                itemHoverColor = ContextMenuTheme.colors.selectedContainerColor,
                 label = entry.label,
                 onClick = {
                     entry.onClick()
@@ -139,7 +143,6 @@ private fun MenuItem(
             )
 
             is ContextMenuEntry.Submenu -> MenuItemContent(
-                itemHoverColor = ContextMenuTheme.colors.selectedContainerColor,
                 label = entry.label,
                 onClick = {
                     if (entry.enabled) {
@@ -152,14 +155,13 @@ private fun MenuItem(
                 interactionSource = interactionSource
             )
 
-            is ContextMenuEntry.Divider -> MenuDividerContent()
+            is ContextMenuEntry.Divider -> Divider(color = ContextMenuTheme.colors.borderColor)
         }
     }
 }
 
 @Composable
 fun MenuItemContent(
-    itemHoverColor: Color,
     label: String,
     onClick: () -> Unit,
     interactionSource: MutableInteractionSource,
@@ -167,25 +169,24 @@ fun MenuItemContent(
     icon: Painter? = null,
     enabled: Boolean = true,
     isSubmenu: Boolean = false,
-    contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 0.dp)
 ) {
     val isFocusedOrHovered = interactionSource.collectIsFocusedAsState().value ||
             interactionSource.collectIsHoveredAsState().value
 
     val backgroundColor = when {
         !enabled -> Color.Transparent
-        isFocusedOrHovered -> itemHoverColor
+        isFocusedOrHovered -> ContextMenuTheme.colors.selectedContainerColor
         else -> Color.Transparent
     }
 
     val contentColor = when {
-        !enabled -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-        else -> LocalContentColor.current
+        !enabled -> ContextMenuTheme.colors.disableContentColor
+        else -> ContextMenuTheme.colors.contentColor
     }
 
     Row(
         modifier = modifier
-            .clip(RoundedCornerShape(4.dp))
+            .clip(ContextMenuTheme.tokens.menuItemShape)
             .background(backgroundColor)
             .fillMaxWidth()
             .clickable(
@@ -199,14 +200,14 @@ fun MenuItemContent(
                 maxWidth = 280.dp,
                 minHeight = 32.dp
             )
-            .padding(contentPadding),
+            .padding(ContextMenuTheme.tokens.menuItemPadding),
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (icon != null) {
             Icon(
                 painter = icon,
                 contentDescription = null,
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier.size(ContextMenuTheme.tokens.menuItemIconSize),
                 tint = contentColor
             )
             Spacer(Modifier.width(12.dp))
@@ -216,7 +217,6 @@ fun MenuItemContent(
             modifier = Modifier.weight(1f),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.typography.bodyMedium,
             color = contentColor
         )
         if (isSubmenu) {
@@ -224,17 +224,4 @@ fun MenuItemContent(
             Text(">")
         }
     }
-}
-
-@Composable
-private fun MenuDividerContent(
-    modifier: Modifier = Modifier,
-    color: Color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
-) {
-    Divider(
-        modifier = modifier.padding(
-            horizontal = 12.dp,
-            vertical = 4.dp
-        ), color = color
-    )
 }
