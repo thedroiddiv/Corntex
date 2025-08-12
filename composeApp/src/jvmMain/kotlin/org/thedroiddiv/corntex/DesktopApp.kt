@@ -81,6 +81,7 @@ fun DesktopApp() {
                                         ),
                                         ContextSubmenuItem(
                                             label = "Git",
+                                            enabled = false,
                                             icon = Res.drawable.folder,
                                             submenuItems = listOf(
                                                 ContextMenuItem("Rebase", leadingIcon = Res.drawable.rebase) { },
@@ -102,7 +103,7 @@ fun DesktopApp() {
                 ),
                 Divider,
                 ContextMenuItem("Rename...") { },
-                ContextMenuItem("Delete", leadingIcon = Res.drawable.delete) { },
+                ContextMenuItem("Delete", enabled = false, leadingIcon = Res.drawable.delete) { },
                 Divider,
                 ContextMenuItem("Cut", leadingIcon = Res.drawable.cut) { },
                 ContextMenuItem("Copy", leadingIcon = Res.drawable.copy) { },
