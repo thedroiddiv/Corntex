@@ -14,7 +14,7 @@ fun main() = application {
         title = "Corntex",
     ) {
         Box(Modifier.fillMaxSize().background(Color(0x00000000))){
-            ManualStateExample()
+            DesktopApp()
         }
     }
 }
