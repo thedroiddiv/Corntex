@@ -2,6 +2,8 @@ package com.thedroiddiv.menu
 
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.contextMenuOpenDetector
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.Stable
@@ -17,6 +19,7 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.isSecondaryPressed
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.unit.IntOffset
+import com.thedroiddiv.menu.modifiers.contextMenuOpenDetector
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -47,7 +50,7 @@ fun ContextMenuArea(
  * the context menu (e.g. on right-click).
  * @param content The content of the [ContextMenuArea].
  */
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun ContextMenuArea(
     items: () -> List<ContextMenuEntry>,
@@ -56,22 +59,13 @@ fun ContextMenuArea(
     content: @Composable () -> Unit
 ) {
     Box(
-        modifier = modifier
-            .onPointerEvent(PointerEventType.Press) {
-                if (it.buttons.isSecondaryPressed) {
-                    it.changes.forEach { it.consume() }
-                    val position = it.changes.first().position
-                    state.show(
-                        position = IntOffset(position.x.toInt(), position.y.toInt()),
-                        items = items()
-                    )
-                }
-            }
+        modifier = modifier.contextMenuOpenDetector(state, items)
     ) {
         content()
         LocalContextMenuRepresentation.current.Representation(state)
     }
 }
+
 
 /**
  * Base sealed class for any entry that can be displayed in a context menu.
@@ -143,9 +137,8 @@ class HierarchicalContextMenuState {
 fun rememberContextMenuState() = remember { HierarchicalContextMenuState() }
 
 /**
- * Implementations of this interface are responsible for displaying context menus. There are two
- * implementations out of the box: [LightDefaultContextMenuRepresentation] and
- * [DarkDefaultContextMenuRepresentation].
+ * Implementations of this interface are responsible for displaying context menus. There is one
+ * implementations out of the box: [DefaultContextMenuRepresentation]
  * To change currently used representation, different value for [LocalContextMenuRepresentation]
  * could be provided.
  */
@@ -159,5 +152,5 @@ interface ContextMenuRepresentation {
  */
 val LocalContextMenuRepresentation:
         ProvidableCompositionLocal<ContextMenuRepresentation> = staticCompositionLocalOf {
-    DarkDefaultContextMenuRepresentation
+    DefaultContextMenuRepresentation(darkContextMenuColor)
 }
