@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.onClick
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ListItem
-import androidx.compose.material3.Button
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -21,11 +19,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.thedroiddiv.corntex.Res
+import com.thedroiddiv.corntex.arrow_forward
+import com.thedroiddiv.corntex.copy
+import com.thedroiddiv.corntex.cut
+import com.thedroiddiv.corntex.delete
+import com.thedroiddiv.corntex.diff
+import com.thedroiddiv.corntex.folder
+import com.thedroiddiv.corntex.merge
+import com.thedroiddiv.corntex.paste
+import com.thedroiddiv.corntex.rebase
 import com.thedroiddiv.menu.ContextMenuArea
 import com.thedroiddiv.menu.ContextMenuEntry
-import com.thedroiddiv.menu.ContextMenuEntry.Single as ContextMenuItem
 import com.thedroiddiv.menu.ContextMenuEntry.Divider
 import com.thedroiddiv.menu.rememberContextMenuState
+import com.thedroiddiv.menu.ContextMenuEntry.Single as ContextMenuItem
 import com.thedroiddiv.menu.ContextMenuEntry.Submenu as ContextSubmenuItem
 
 @Composable
@@ -33,8 +41,8 @@ fun DesktopApp() {
     ContextMenuArea(
         items = {
             listOf(
-                ContextMenuItem("New file") { },
-                ContextMenuItem("New Folder") { },
+                ContextMenuItem("New file", leadingIcon = Res.drawable.folder) { },
+                ContextMenuItem("New Folder", leadingIcon = Res.drawable.folder) { },
                 Divider,
                 ContextMenuItem("Open In Split") { },
                 ContextSubmenuItem(
@@ -46,11 +54,13 @@ fun DesktopApp() {
                         ContextMenuItem("Browser") { },
                         ContextSubmenuItem(
                             label = "Git",
+                            icon = Res.drawable.folder,
                             submenuItems = listOf(
-                                ContextMenuItem("Rebase") { },
-                                ContextMenuItem("Merge") { },
+                                ContextMenuItem("Rebase" ,leadingIcon = Res.drawable.rebase) { },
+                                ContextMenuItem("Merge", leadingIcon = Res.drawable.merge) { },
                                 ContextSubmenuItem(
                                     label = "GitHub",
+                                    icon = Res.drawable.folder,
                                     submenuItems = listOf(
                                         ContextMenuItem("Pull") { },
                                         ContextMenuItem("Push") { }
@@ -59,10 +69,11 @@ fun DesktopApp() {
                                 ContextSubmenuItem(
                                     label = "Git",
                                     submenuItems = listOf(
-                                        ContextMenuItem("Rebase") { },
-                                        ContextMenuItem("Merge") { },
+                                        ContextMenuItem("Rebase",leadingIcon = Res.drawable.rebase) { },
+                                        ContextMenuItem("Merge",leadingIcon = Res.drawable.merge) { },
                                         ContextSubmenuItem(
                                             label = "GitHub",
+                                            icon = Res.drawable.folder,
                                             submenuItems = listOf(
                                                 ContextMenuItem("Pull") { },
                                                 ContextMenuItem("Push") { }
@@ -70,9 +81,10 @@ fun DesktopApp() {
                                         ),
                                         ContextSubmenuItem(
                                             label = "Git",
+                                            icon = Res.drawable.folder,
                                             submenuItems = listOf(
-                                                ContextMenuItem("Rebase") { },
-                                                ContextMenuItem("Merge") { },
+                                                ContextMenuItem("Rebase", leadingIcon = Res.drawable.rebase) { },
+                                                ContextMenuItem("Merge", leadingIcon = Res.drawable.merge) { },
                                                 ContextSubmenuItem(
                                                     label = "GitHub",
                                                     submenuItems = listOf(
@@ -90,21 +102,23 @@ fun DesktopApp() {
                 ),
                 Divider,
                 ContextMenuItem("Rename...") { },
-                ContextMenuItem("Delete") { },
+                ContextMenuItem("Delete", leadingIcon = Res.drawable.delete) { },
                 Divider,
-                ContextMenuItem("Cut") { },
-                ContextMenuItem("Copy") { },
-                ContextMenuItem("Copy Path") { },
+                ContextMenuItem("Cut", leadingIcon = Res.drawable.cut) { },
+                ContextMenuItem("Copy", leadingIcon = Res.drawable.copy) { },
+                ContextMenuItem("Copy Path", leadingIcon = Res.drawable.copy) { },
                 ContextMenuItem("Copy Relative Path") { },
-                ContextMenuItem("Paste") { },
+                ContextMenuItem("Paste", leadingIcon = Res.drawable.paste) { },
                 Divider,
                 ContextSubmenuItem(
                     label = "Git",
                     submenuItems = listOf(
-                        ContextMenuItem("Rebase") { },
-                        ContextMenuItem("Merge") { },
+                        ContextMenuItem("Rebase", leadingIcon = Res.drawable.rebase) { },
+                        ContextMenuItem("Merge", leadingIcon = Res.drawable.merge) { },
+                        ContextMenuItem("Diff", leadingIcon = Res.drawable.diff) { },
                         ContextSubmenuItem(
                             label = "GitHub",
+                            icon = Res.drawable.folder,
                             submenuItems = listOf(
                                 ContextMenuItem("Pull") { },
                                 ContextMenuItem("Push") { }

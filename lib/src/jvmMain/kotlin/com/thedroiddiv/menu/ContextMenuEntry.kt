@@ -1,6 +1,9 @@
 package com.thedroiddiv.menu
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.ImageVector
+import org.jetbrains.compose.resources.DrawableResource
 
 
 /**
@@ -12,13 +15,15 @@ sealed class ContextMenuEntry {
      * A clickable menu item with optional icon.
      *
      * @param label Display text for the menu item
-     * @param icon Optional icon to display alongside the label
+     * @param leadingIcon Optional icon to display pre to label
+     * @param trailingIcon Optional icon to display post to label
      * @param enabled Whether the item is interactive
      * @param onClick Action to perform when clicked
      */
     data class Single(
         val label: String,
-        val icon: Painter? = null,
+        val leadingIcon: DrawableResource? = null,
+        val trailingIcon: DrawableResource? = null,
         val enabled: Boolean = true,
         val onClick: () -> Unit
     ) : ContextMenuEntry()
@@ -34,7 +39,7 @@ sealed class ContextMenuEntry {
     data class Submenu(
         val label: String,
         val submenuItems: List<ContextMenuEntry>,
-        val icon: Painter? = null,
+        val icon: DrawableResource? = null,
         val enabled: Boolean = true
     ) : ContextMenuEntry()
 

@@ -39,6 +39,12 @@ kotlin {
     }
 }
 
+compose.resources {
+    publicResClass = false
+    packageOfResClass = "com.thedroiddiv.corntex"
+    generateResClass = auto
+}
+
 compose.desktop {
     application {
         mainClass = "org.thedroiddiv.corntex.MainKt"

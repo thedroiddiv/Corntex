@@ -36,3 +36,8 @@ kotlin {
     }
 }
 
+compose.resources {
+    publicResClass = false
+    packageOfResClass = "com.thedroiddiv.menu"
+    generateResClass = auto
+}

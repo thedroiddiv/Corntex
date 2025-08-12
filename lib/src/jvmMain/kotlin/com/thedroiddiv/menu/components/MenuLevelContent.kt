@@ -11,7 +11,6 @@ import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,12 +21,9 @@ import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,6 +39,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.text.style.TextOverflow
@@ -51,7 +48,12 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.thedroiddiv.menu.ContextMenuEntry
 import com.thedroiddiv.menu.HierarchicalContextMenuState
+import com.thedroiddiv.menu.Res
+import com.thedroiddiv.menu.arrow_forward
 import com.thedroiddiv.menu.theme.ContextMenuTheme
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.vectorResource
+
 
 @Composable
 fun MenuLevelContent(
@@ -77,7 +79,10 @@ fun MenuLevelContent(
         color = ContextMenuTheme.colors.containerColor,
         contentColor = ContextMenuTheme.colors.contentColor
     ) {
-        Box(modifier = Modifier.heightIn(max = maxHeight).padding(ContextMenuTheme.tokens.menuContainerPadding)) {
+        Box(
+            modifier = Modifier.heightIn(max = maxHeight)
+                .padding(ContextMenuTheme.tokens.menuContainerPadding)
+        ) {
             val scrollState = rememberScrollState()
             Column(
                 modifier = Modifier
@@ -136,9 +141,9 @@ private fun MenuItem(
                     entry.onClick()
                     state.hide()
                 },
-                icon = entry.icon,
+                leadingIcon = entry.leadingIcon?.let { painterResource(it) },
+                trailingIcon = entry.trailingIcon?.let { painterResource(it) },
                 enabled = entry.enabled,
-                isSubmenu = false,
                 interactionSource = interactionSource
             )
 
@@ -149,9 +154,9 @@ private fun MenuItem(
                         state.onItemHover(entry, positionInParent)
                     }
                 },
-                icon = entry.icon,
+                leadingIcon = entry.icon?.let { painterResource(it) },
+                trailingIcon = painterResource(Res.drawable.arrow_forward),
                 enabled = entry.enabled,
-                isSubmenu = true,
                 interactionSource = interactionSource
             )
 
@@ -166,9 +171,9 @@ fun MenuItemContent(
     onClick: () -> Unit,
     interactionSource: MutableInteractionSource,
     modifier: Modifier = Modifier,
-    icon: Painter? = null,
+    leadingIcon: Painter? = null,
+    trailingIcon: Painter? = null,
     enabled: Boolean = true,
-    isSubmenu: Boolean = false,
 ) {
     val isFocusedOrHovered = interactionSource.collectIsFocusedAsState().value ||
             interactionSource.collectIsHoveredAsState().value
@@ -203,15 +208,17 @@ fun MenuItemContent(
             .padding(ContextMenuTheme.tokens.menuItemPadding),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (icon != null) {
-            Icon(
-                painter = icon,
-                contentDescription = null,
-                modifier = Modifier.size(ContextMenuTheme.tokens.menuItemIconSize),
-                tint = contentColor
-            )
-            Spacer(Modifier.width(12.dp))
+        Box(Modifier.size(ContextMenuTheme.tokens.menuItemIconSize)) {
+            if (leadingIcon != null) {
+                Icon(
+                    painter = leadingIcon,
+                    contentDescription = null,
+                    modifier = Modifier.size(ContextMenuTheme.tokens.menuItemIconSize),
+                    tint = contentColor
+                )
+            }
         }
+        Spacer(Modifier.width(8.dp))
         Text(
             text = label,
             modifier = Modifier.weight(1f),
@@ -219,9 +226,16 @@ fun MenuItemContent(
             overflow = TextOverflow.Ellipsis,
             color = contentColor
         )
-        if (isSubmenu) {
-            Spacer(Modifier.width(12.dp))
-            Text(">")
+        Spacer(Modifier.width(8.dp))
+        Box(Modifier.size(ContextMenuTheme.tokens.menuItemIconSize)) {
+            if (trailingIcon != null) {
+                Icon(
+                    painter = trailingIcon,
+                    contentDescription = null,
+                    modifier = Modifier.size(ContextMenuTheme.tokens.menuItemIconSize),
+                    tint = contentColor
+                )
+            }
         }
     }
 }
