@@ -20,51 +20,47 @@ import com.thedroiddiv.menu.theme.ContextMenuTheme
 /**
  * Defines a container where context menu is available with automatic right-click detection.
  *
- * @param items Provider function returning list of context menu items
  * @param modifier Modifier to be applied to the container
+ * @param items Provider function returning list of context menu items
  * @param content The content to display inside the context menu area
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ContextMenuArea(
-    items: () -> List<ContextMenuEntry>,
     modifier: Modifier = Modifier,
+    items: () -> List<ContextMenuEntry>,
     content: @Composable () -> Unit
 ) {
     val state = rememberContextMenuState()
-    ContextMenuArea(
-        items = items,
-        state = state,
-        modifier = modifier,
-        content = content
-    )
+    Box(modifier = modifier.contextMenuOpenDetector(state, items)) {
+        content()
+        ContextMenuTheme { LocalContextMenuRepresentation.current.Representation(state) }
+    }
 }
 
 /**
  * Defines a container where context menu is available. Representation of menu is defined by
  * [LocalContextMenuRepresentation].
  *
- * @param items List of context menu items. Final context menu contains all items from descendant [ContextMenuArea].
- * @param state [HierarchicalContextMenuState] of menu controlled by this area.
+ * This doesn't show context automatically, caller needs to call `state.show()` to display context menu
+ * on some user action.
+ *
  * @param modifier The modifier to attach to the element; this should include the trigger that opens
+ * @param state [HierarchicalContextMenuState] of menu controlled by this area.
  * the context menu (e.g. on right-click).
  * @param content The content of the [ContextMenuArea].
  */
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun ContextMenuArea(
-    items: () -> List<ContextMenuEntry>,
+    modifier: Modifier = Modifier,
     state: HierarchicalContextMenuState,
-    modifier: Modifier,
     content: @Composable () -> Unit
 ) {
-    Box(
-        modifier = modifier.contextMenuOpenDetector(state, items)
-    ) {
-        content()
-        ContextMenuTheme { LocalContextMenuRepresentation.current.Representation(state) }
-    }
+    content()
+    ContextMenuTheme { LocalContextMenuRepresentation.current.Representation(state) }
 }
+
 
 
 /**
