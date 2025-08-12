@@ -39,9 +39,9 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -52,7 +52,6 @@ import com.thedroiddiv.menu.Res
 import com.thedroiddiv.menu.arrow_forward
 import com.thedroiddiv.menu.theme.ContextMenuTheme
 import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.resources.vectorResource
 
 
 @Composable
@@ -79,24 +78,21 @@ fun MenuLevelContent(
         color = ContextMenuTheme.colors.containerColor,
         contentColor = ContextMenuTheme.colors.contentColor
     ) {
-        Box(
-            modifier = Modifier.heightIn(max = maxHeight)
+        val scrollState = rememberScrollState()
+        Column(
+            modifier = Modifier
+                .heightIn(max = maxHeight)
+                .focusTarget()
                 .padding(ContextMenuTheme.tokens.menuContainerPadding)
+                .verticalScroll(scrollState),
+            verticalArrangement = Arrangement.spacedBy(ContextMenuTheme.tokens.menuItemsSpacing)
         ) {
-            val scrollState = rememberScrollState()
-            Column(
-                modifier = Modifier
-                    .focusTarget()
-                    .verticalScroll(scrollState),
-                verticalArrangement = Arrangement.spacedBy(ContextMenuTheme.tokens.menuItemsSpacing)
-            ) {
-                items.forEach { item ->
-                    MenuItem(
-                        entry = item,
-                        state = state,
-                        scrollState = scrollState,
-                    )
-                }
+            items.forEach { item ->
+                MenuItem(
+                    entry = item,
+                    state = state,
+                    scrollState = scrollState,
+                )
             }
         }
     }
@@ -213,7 +209,9 @@ fun MenuItemContent(
                 Icon(
                     painter = leadingIcon,
                     contentDescription = null,
-                    modifier = Modifier.size(ContextMenuTheme.tokens.menuItemIconSize),
+                    modifier = Modifier
+                        .testTag("leadingIcon")
+                        .size(ContextMenuTheme.tokens.menuItemIconSize),
                     tint = contentColor
                 )
             }
@@ -232,7 +230,9 @@ fun MenuItemContent(
                 Icon(
                     painter = trailingIcon,
                     contentDescription = null,
-                    modifier = Modifier.size(ContextMenuTheme.tokens.menuItemIconSize),
+                    modifier = Modifier
+                        .testTag("trailingIcon")
+                        .size(ContextMenuTheme.tokens.menuItemIconSize),
                     tint = contentColor
                 )
             }

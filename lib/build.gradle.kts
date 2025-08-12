@@ -33,6 +33,10 @@ kotlin {
             implementation(libs.kotlinx.coroutinesSwing)
             implementation(compose.uiTooling)
         }
+        jvmTest.dependencies {
+            implementation(compose.desktop.uiTestJUnit4)
+            implementation("org.mockito.kotlin:mockito-kotlin:6.0.0")
+        }
     }
 }
 
