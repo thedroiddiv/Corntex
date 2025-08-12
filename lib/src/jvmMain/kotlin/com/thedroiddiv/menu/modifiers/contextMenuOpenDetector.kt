@@ -9,6 +9,12 @@ import androidx.compose.ui.unit.IntOffset
 import com.thedroiddiv.menu.ContextMenuEntry
 import com.thedroiddiv.menu.HierarchicalContextMenuState
 
+/**
+ * Modifier that detects right-click (secondary button press) events to trigger a context menu.
+ *
+ * @param state The [HierarchicalContextMenuState] that manages the context menu visibility and positioning
+ * @param items A lambda function that provides the list of [ContextMenuEntry] items to display when the menu is opened
+ */
 @OptIn(ExperimentalComposeUiApi::class)
 fun Modifier.contextMenuOpenDetector(
     state: HierarchicalContextMenuState,

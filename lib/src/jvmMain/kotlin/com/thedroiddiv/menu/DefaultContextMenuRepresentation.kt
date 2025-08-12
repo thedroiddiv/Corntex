@@ -16,7 +16,6 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.window.Popup
@@ -24,10 +23,17 @@ import androidx.compose.ui.window.PopupProperties
 import com.thedroiddiv.menu.components.MenuLevelContent
 
 /**
- * Default implementation of [ContextMenuRepresentation]
+ * Default implementation of [ContextMenuRepresentation] that displays menus as popup overlays
+ * with keyboard navigation support.
  */
 class DefaultContextMenuRepresentation : ContextMenuRepresentation {
 
+    /**
+     * Renders hierarchical context menus as positioned popup. Different menu levels
+     * are displayed as positioned box in the popup with given elevation
+     *
+     * @param state The current state containing open menu levels and their positions
+     */
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     override fun Representation(state: HierarchicalContextMenuState) {
@@ -94,7 +100,14 @@ class DefaultContextMenuRepresentation : ContextMenuRepresentation {
         }
     }
 
-
+    /**
+     * Handles keyboard input for menu navigation.
+     *
+     * @param keyEvent The key event to process
+     * @param focusManager Focus manager for navigation between menu items
+     * @param onDismiss Callback to close the menu
+     * @return True if the key event was handled, false otherwise
+     */
     private fun handleKeyEvent(
         keyEvent: KeyEvent,
         focusManager: FocusManager,

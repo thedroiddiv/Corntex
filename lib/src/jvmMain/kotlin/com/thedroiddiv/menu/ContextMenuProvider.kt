@@ -17,6 +17,13 @@ import androidx.compose.ui.unit.IntOffset
 import com.thedroiddiv.menu.modifiers.contextMenuOpenDetector
 import com.thedroiddiv.menu.theme.ContextMenuTheme
 
+/**
+ * Defines a container where context menu is available with automatic right-click detection.
+ *
+ * @param items Provider function returning list of context menu items
+ * @param modifier Modifier to be applied to the container
+ * @param content The content to display inside the context menu area
+ */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ContextMenuArea(
@@ -36,9 +43,6 @@ fun ContextMenuArea(
 /**
  * Defines a container where context menu is available. Representation of menu is defined by
  * [LocalContextMenuRepresentation].
- *
- * This overload does not trigger the opening of the context menu; it's up to the caller to do so
- * by passing a [modifier] that does so.
  *
  * @param items List of context menu items. Final context menu contains all items from descendant [ContextMenuArea].
  * @param state [HierarchicalContextMenuState] of menu controlled by this area.
@@ -63,17 +67,36 @@ fun ContextMenuArea(
 }
 
 
+/**
+ * Represents a single level in a hierarchical context menu.
+ *
+ * @param items The menu items to display at this level
+ * @param position Screen position where this menu level should appear
+ */
 @Stable
 data class MenuLevel(
     val items: List<ContextMenuEntry>,
     val position: IntOffset,
 )
 
+/**
+ * State holder for hierarchical context menus that supports nested submenus.
+ */
 @Stable
 class HierarchicalContextMenuState {
+
+    /**
+     * Currently open menu levels, ordered from root to deepest submenu.
+     */
     var openMenus by mutableStateOf<List<MenuLevel>>(emptyList())
         private set
 
+    /**
+     * Shows a context menu at the specified position.
+     *
+     * @param position Screen coordinates where the menu should appear
+     * @param items Menu items to display
+     */
     fun show(position: IntOffset, items: List<ContextMenuEntry>) {
         openMenus = listOf(MenuLevel(items = items, position = position))
     }
@@ -85,6 +108,12 @@ class HierarchicalContextMenuState {
         openMenus = emptyList()
     }
 
+    /**
+     * Handles hovering over a menu item, opening submenus as needed.
+     *
+     * @param item The menu item being hovered
+     * @param bottomRight Position for submenu placement
+     */
     fun onItemHover(item: ContextMenuEntry, bottomRight: IntOffset) {
         val itemLevelIndex = openMenus.indexOfFirst { it.items.contains(item) }
         if (itemLevelIndex == -1) return
@@ -107,6 +136,9 @@ class HierarchicalContextMenuState {
     }
 }
 
+/**
+ * Creates and remembers a [HierarchicalContextMenuState] for the current composition.
+ */
 @Composable
 fun rememberContextMenuState() = remember { HierarchicalContextMenuState() }
 
