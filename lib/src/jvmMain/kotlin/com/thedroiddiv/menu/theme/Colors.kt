@@ -1,4 +1,4 @@
-package com.thedroiddiv.menu
+package com.thedroiddiv.menu.theme
 
 import androidx.compose.ui.graphics.Color
 

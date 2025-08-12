@@ -3,7 +3,6 @@ package com.thedroiddiv.menu
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.contextMenuOpenDetector
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.Stable
@@ -14,12 +13,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.isSecondaryPressed
-import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.unit.IntOffset
 import com.thedroiddiv.menu.modifiers.contextMenuOpenDetector
+import com.thedroiddiv.menu.theme.ContextMenuTheme
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -62,38 +58,16 @@ fun ContextMenuArea(
         modifier = modifier.contextMenuOpenDetector(state, items)
     ) {
         content()
-        LocalContextMenuRepresentation.current.Representation(state)
+        ContextMenuTheme { LocalContextMenuRepresentation.current.Representation(state) }
     }
 }
 
-
-/**
- * Base sealed class for any entry that can be displayed in a context menu.
- */
-sealed class ContextMenuEntry {
-    data class Single(
-        val label: String,
-        val icon: Painter? = null,
-        val enabled: Boolean = true,
-        val onClick: () -> Unit
-    ) : ContextMenuEntry()
-
-    data class Submenu(
-        val label: String,
-        val submenuItems: List<ContextMenuEntry>,
-        val icon: Painter? = null,
-        val enabled: Boolean = true
-    ) : ContextMenuEntry()
-
-    object Divider : ContextMenuEntry()
-}
 
 @Stable
 data class MenuLevel(
     val items: List<ContextMenuEntry>,
     val position: IntOffset,
 )
-
 
 @Stable
 class HierarchicalContextMenuState {
@@ -111,7 +85,7 @@ class HierarchicalContextMenuState {
         openMenus = emptyList()
     }
 
-    fun onItemHover(item: ContextMenuEntry, itemBounds: IntOffset) {
+    fun onItemHover(item: ContextMenuEntry, bottomRight: IntOffset) {
         val itemLevelIndex = openMenus.indexOfFirst { it.items.contains(item) }
         if (itemLevelIndex == -1) return
 
@@ -122,7 +96,7 @@ class HierarchicalContextMenuState {
                     newMenuStack.getOrNull(itemLevelIndex + 1)?.items == item.submenuItems
 
             if (!isAlreadyOpen) {
-                val subMenuPosition = IntOffset(itemBounds.x, itemBounds.y)
+                val subMenuPosition = IntOffset(bottomRight.x, bottomRight.y)
                 newMenuStack + MenuLevel(items = item.submenuItems, position = subMenuPosition)
             } else {
                 newMenuStack
@@ -152,5 +126,5 @@ interface ContextMenuRepresentation {
  */
 val LocalContextMenuRepresentation:
         ProvidableCompositionLocal<ContextMenuRepresentation> = staticCompositionLocalOf {
-    DefaultContextMenuRepresentation(darkContextMenuColor)
+    DefaultContextMenuRepresentation()
 }

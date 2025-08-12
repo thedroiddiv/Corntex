@@ -48,13 +48,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.thedroiddiv.menu.ContextMenuColor
 import com.thedroiddiv.menu.ContextMenuEntry
 import com.thedroiddiv.menu.HierarchicalContextMenuState
+import com.thedroiddiv.menu.theme.ContextMenuTheme
 
 @Composable
 fun MenuLevelContent(
-    colors: ContextMenuColor,
     items: List<ContextMenuEntry>,
     state: HierarchicalContextMenuState,
     modifier: Modifier = Modifier,
@@ -65,24 +64,27 @@ fun MenuLevelContent(
         modifier = modifier
             .widthIn(max = maxWidth)
             .padding(4.dp)
-            .shadow(8.dp, RoundedCornerShape(8.dp)),
-        shape = RoundedCornerShape(8.dp),
-        color = colors.containerColor,
-        contentColor = colors.contentColor
+            .shadow(
+                ContextMenuTheme.tokens.menuElevation,
+                RoundedCornerShape(ContextMenuTheme.tokens.menuCornerRadius)
+            ),
+        shape = RoundedCornerShape(ContextMenuTheme.tokens.menuCornerRadius),
+        color = ContextMenuTheme.colors.containerColor,
+        contentColor = ContextMenuTheme.colors.contentColor
     ) {
-        Box(modifier = Modifier.heightIn(max = maxHeight).padding(4.dp)) {
+        Box(modifier = Modifier.heightIn(max = maxHeight)) {
             val scrollState = rememberScrollState()
             Column(
                 modifier = Modifier
-                    .padding(vertical = 4.dp)
                     .focusTarget()
                     .verticalScroll(scrollState),
                 verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 items.forEach { item ->
                     MenuItem(
-                        entry = item, state = state, scrollState = scrollState,
-                        colors = colors
+                        entry = item,
+                        state = state,
+                        scrollState = scrollState,
                     )
                 }
             }
@@ -94,7 +96,6 @@ fun MenuLevelContent(
 @Composable
 private fun MenuItem(
     modifier: Modifier = Modifier,
-    colors: ContextMenuColor,
     entry: ContextMenuEntry,
     state: HierarchicalContextMenuState,
     scrollState: ScrollState
@@ -125,7 +126,7 @@ private fun MenuItem(
     ) {
         when (entry) {
             is ContextMenuEntry.Single -> MenuItemContent(
-                itemHoverColor = colors.selectedContainerColor,
+                itemHoverColor = ContextMenuTheme.colors.selectedContainerColor,
                 label = entry.label,
                 onClick = {
                     entry.onClick()
@@ -138,7 +139,7 @@ private fun MenuItem(
             )
 
             is ContextMenuEntry.Submenu -> MenuItemContent(
-                itemHoverColor = colors.selectedContainerColor,
+                itemHoverColor = ContextMenuTheme.colors.selectedContainerColor,
                 label = entry.label,
                 onClick = {
                     if (entry.enabled) {
