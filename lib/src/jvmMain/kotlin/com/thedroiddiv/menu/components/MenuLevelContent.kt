@@ -222,7 +222,8 @@ fun MenuItemContent(
             modifier = Modifier.weight(1f),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            color = contentColor
+            color = contentColor,
+            style = ContextMenuTheme.typography.label
         )
         Spacer(Modifier.width(8.dp))
         Box(Modifier.size(ContextMenuTheme.tokens.menuItemIconSize)) {
