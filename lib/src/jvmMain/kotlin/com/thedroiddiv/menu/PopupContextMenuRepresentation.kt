@@ -25,66 +25,31 @@ import com.thedroiddiv.menu.components.MenuLevelContent
 class PopupContextMenuRepresentation : ContextMenuRepresentation {
     @Composable
     override fun Representation(state: HierarchicalContextMenuState) {
-        val density = LocalDensity.current
-        val windowInfo = LocalWindowInfo.current
-        val screenBounds = with(density) {
-            IntRect(
-                0, 0,
-                windowInfo.containerSize.width,
-                windowInfo.containerSize.height
-            )
-        }
-
         if (state.openMenus.isNotEmpty()) {
             state.openMenus.forEachIndexed { idx, menuLevel ->
-                var menuSize by remember { mutableStateOf(IntSize.Zero) }
-                val adjustedOffset = if (menuSize != IntSize.Zero) {
-                    calculateAdjustedOffset(
-                        originalOffset = menuLevel.position,
-                        menuSize = menuSize,
-                        screenBounds = screenBounds,
-                        menuIndex = idx,
-                        density = density
-                    )
-                } else {
-                    menuLevel.position
-                }
                 Popup(
                     alignment = Alignment.TopStart,
-                    offset = adjustedOffset,
+                    offset = menuLevel.position,
                     onDismissRequest = { state.hide() },
                     properties = PopupProperties(
                         focusable = idx == 0,
                         dismissOnBackPress = true,
                         dismissOnClickOutside = true,
-                        clippingEnabled = false
+                        clippingEnabled = true
                     ),
                     onPreviewKeyEvent = { false },
                     content = {
-                        Box(
-                            modifier = Modifier
-                                .pointerInput(Unit) {
-                                    awaitPointerEventScope {
-                                        while (true) {
-                                            awaitPointerEvent(PointerEventPass.Main)
-                                        }
-                                    }
-                                }
-                                .onSizeChanged { size ->
-                                    menuSize = size
-                                }
-                        ) {
-                            MenuLevelContent(
-                                items = menuLevel.items,
-                                state = state
-                            )
-                        }
+                        MenuLevelContent(
+                            items = menuLevel.items,
+                            state = state
+                        )
                     }
                 )
             }
         }
     }
 
+    @Deprecated("Not required anymore")
     internal fun calculateAdjustedOffset(
         originalOffset: IntOffset,
         menuSize: IntSize,
