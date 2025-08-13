@@ -2,10 +2,7 @@
   
 A flexible and hierarchical context menu library for Compose Desktop applications that supports nested submenus, keyboard navigation, and customizable styling.  
 
-
 https://github.com/user-attachments/assets/1e266209-b833-48a8-bb4d-b5dddc9edf3b
-
-
   
 ## Features  
   
@@ -15,7 +12,14 @@ https://github.com/user-attachments/assets/1e266209-b833-48a8-bb4d-b5dddc9edf3b
 - **Flexible Items**: Support for clickable items, submenus, and visual dividers  
   
 ## Quick Start  
-  
+
+### 📦 Installation
+
+```kotlin
+dependencies {
+    implementation("io.github.thedroiddiv:corntex:<latest-version>")
+}
+```
 ### Basic Usage  
   
 ```kotlin  
@@ -40,37 +44,38 @@ fun MyComponent() {
 ```kotlin  
 @Composable  
 @Composable  
-fun AdvancedContextMenu() {  
-    ContextMenuArea(items = {  
-		  listOf(  
-            ContextMenuEntry.Single(  
-                label = "New File",  
-                icon = painterResource("icons/file.png"),  
-                onClick = { /* Create new file */ }  
-            ),  
-            ContextMenuEntry.Submenu(  
-                label = "Export As",  
-                icon = painterResource("icons/export.png"),  
-                submenuItems = listOf(  
-                    ContextMenuEntry.Single("PDF", onClick = { /* Export as PDF */ }),  
-                    ContextMenuEntry.Single("PNG", onClick = { /* Export as PNG */ }),  
-                    ContextMenuEntry.Divider,  
-                    ContextMenuEntry.Single("Other...", onClick = { /* Show export dialog */ })  
-                )  
-            ),  
-            ContextMenuEntry.Divider, ContextMenuEntry.Single(  
-                label = "Delete",  
+fun AdvancedContextMenu() {
+    ContextMenuArea(items = {
+        listOf(
+            ContextMenuEntry.Single(
+                label = "New File",
+                icon = painterResource("icons/file.png"),
+                onClick = { /* Create new file */ }
+            ),
+            ContextMenuEntry.Submenu(
+                label = "Export As",
+                icon = painterResource("icons/export.png"),
+                submenuItems = listOf(
+                    ContextMenuEntry.Single("PDF", onClick = { /* Export as PDF */ }),
+                    ContextMenuEntry.Single("PNG", onClick = { /* Export as PNG */ }),
+                    ContextMenuEntry.Divider,
+                    ContextMenuEntry.Single("Other...", onClick = { /* Show export dialog */ })
+                )
+            ),
+            ContextMenuEntry.Divider, ContextMenuEntry.Single(
+                label = "Delete",
                 enabled = false, // Disabled item  
-                onClick = { /* Handle delete */ }    
-            )  
-        )  
-    }  
-  ) {  
+                onClick = { /* Handle delete */ }
+            )
+        )
+    }
+    ) {
         // Your content here
-		Card(modifier = Modifier.size(200.dp)) {    
-	        Text("Right-click for advanced menu")  
-	    }  
-} 
+        Card(modifier = Modifier.size(200.dp)) {
+            Text("Right-click for advanced menu")
+        }
+    }
+}
 ```  
   
 ### Manual State Management  
