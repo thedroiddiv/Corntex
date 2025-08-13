@@ -22,7 +22,7 @@ fun Modifier.contextMenuOpenDetector(
 ) =
     this.onPointerEvent(PointerEventType.Press) {
         if (it.buttons.isSecondaryPressed) {
-            it.changes.forEach { it.consume() }
+            it.changes.forEach { e -> e.consume() }
             val position = it.changes.first().position
             state.show(
                 position = IntOffset(position.x.toInt(), position.y.toInt()),
