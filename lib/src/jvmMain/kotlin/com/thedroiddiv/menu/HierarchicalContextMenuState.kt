@@ -25,7 +25,7 @@ class HierarchicalContextMenuState {
      * @param items Menu items to display
      */
     fun show(position: IntOffset, items: List<ContextMenuEntry>) {
-        openMenus = listOf(MenuLevel(items = items, position = position))
+        openMenus = listOf(MenuLevel(items = items, focused = null, position = position))
     }
 
     /**
@@ -42,10 +42,14 @@ class HierarchicalContextMenuState {
      * @param bottomRight Position for submenu placement
      */
     fun onItemHover(item: ContextMenuEntry, bottomRight: IntOffset) {
-        val itemLevelIndex = openMenus.indexOfFirst { it.items.contains(item) }
+        var itemIndex = -1
+        val itemLevelIndex = openMenus.indexOfFirst {
+            itemIndex = it.items.indexOfFirst { it === item }
+            itemIndex != -1
+        }
         if (itemLevelIndex == -1) return
 
-        val newMenuStack = openMenus.subList(0, itemLevelIndex + 1)
+        val newMenuStack = openMenus.subList(0, itemLevelIndex) + openMenus[itemLevelIndex].copy(focused = itemIndex)
 
         openMenus = if (item is ContextMenuEntry.Submenu && item.enabled) {
             val isAlreadyOpen = newMenuStack.size > itemLevelIndex + 1 &&
@@ -58,7 +62,7 @@ class HierarchicalContextMenuState {
                 } else {
                     IntOffset(prev.position.x + bottomRight.x, prev.position.y + bottomRight.y)
                 }
-                newMenuStack + MenuLevel(items = item.submenuItems, position = subMenuPosition)
+                newMenuStack + MenuLevel(items = item.submenuItems, focused = null, position = subMenuPosition)
             } else {
                 newMenuStack
             }

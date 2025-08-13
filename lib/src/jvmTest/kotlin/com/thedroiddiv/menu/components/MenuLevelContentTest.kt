@@ -61,6 +61,7 @@ class MenuLevelContentTest {
     private fun setupMenuContent(
         items: List<ContextMenuEntry> = defaultItems,
         state: HierarchicalContextMenuState = mockState,
+        focusedIdx: Int? = null,
         maxWidth: Dp = 280.dp,
         maxHeight: Dp = 600.dp
     ) {
@@ -71,7 +72,8 @@ class MenuLevelContentTest {
                     state = state,
                     maxWidth = maxWidth,
                     maxHeight = maxHeight,
-                    modifier = Modifier.testTag("menuLevelContent")
+                    modifier = Modifier.testTag("menuLevelContent"),
+                    focusedIdx = focusedIdx
                 )
             }
         }
@@ -204,6 +206,7 @@ class MenuLevelContentTest {
                     onClick = {},
                     interactionSource = androidx.compose.runtime.remember { MutableInteractionSource() },
                     enabled = true,
+                    focused = false,
                     modifier = Modifier.testTag("menuItemContent")
                 )
             }
@@ -223,6 +226,7 @@ class MenuLevelContentTest {
                     onClick = mockOnClick,
                     interactionSource = androidx.compose.runtime.remember { MutableInteractionSource() },
                     enabled = false,
+                    focused = false,
                     modifier = Modifier.testTag("menuItemContentDisabled")
                 )
             }
@@ -237,7 +241,7 @@ class MenuLevelContentTest {
     }
 
     @Test
-    fun menuItemContent_hoverOrFocus_changesBackgroundColor() {
+    fun menuItemContent_focused_hasCorrectBackgroundColor() {
         val label = "Focus Item"
         val interactionSource = MutableInteractionSource()
 
@@ -248,15 +252,15 @@ class MenuLevelContentTest {
                     onClick = {},
                     interactionSource = interactionSource,
                     enabled = true,
+                    focused = true,
                     modifier = Modifier.testTag("focusableItem")
                 )
             }
         }
 
-        composeTestRule.onNodeWithTag("focusableItem").performClick()
-        composeTestRule.onNodeWithTag("focusableItem").performTouchInput {
-            down(center) // Simulate mouse down
-        }
+        // TODO: test for background color
+        composeTestRule.onNodeWithTag("focusableItem")
+            .assertIsDisplayed()
     }
 
 
@@ -270,6 +274,7 @@ class MenuLevelContentTest {
                     onClick = {},
                     interactionSource = androidx.compose.runtime.remember { MutableInteractionSource() },
                     leadingIcon = painterResource(testIconRes),
+                    focused = false,
                     modifier = Modifier.testTag("itemWithLeadingIcon")
                 )
             }
@@ -292,7 +297,8 @@ class MenuLevelContentTest {
                     onClick = {},
                     interactionSource = remember { MutableInteractionSource() },
                     trailingIcon = painterResource(testIconRes),
-                    modifier = Modifier.testTag("itemWithTrailingIcon")
+                    modifier = Modifier.testTag("itemWithTrailingIcon"),
+                    focused = false
                 )
             }
         }
@@ -314,7 +320,8 @@ class MenuLevelContentTest {
                     MenuItemContent(
                         label = longLabel,
                         onClick = {},
-                        interactionSource = remember { MutableInteractionSource() }
+                        interactionSource = remember { MutableInteractionSource() },
+                        focused = false
                     )
                 }
             }

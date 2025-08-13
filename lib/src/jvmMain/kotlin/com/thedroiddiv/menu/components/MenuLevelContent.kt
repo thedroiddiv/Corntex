@@ -56,6 +56,7 @@ import org.jetbrains.compose.resources.painterResource
 @Composable
 fun MenuLevelContent(
     items: List<ContextMenuEntry>,
+    focusedIdx: Int?,
     state: HierarchicalContextMenuState,
     modifier: Modifier = Modifier,
     maxWidth: Dp = 280.dp,
@@ -85,11 +86,12 @@ fun MenuLevelContent(
             .verticalScroll(scrollState),
         verticalArrangement = Arrangement.spacedBy(ContextMenuTheme.tokens.menuItemsSpacing)
     ) {
-        items.forEach { item ->
+        items.forEachIndexed { idx, item ->
             MenuItem(
                 entry = item,
                 state = state,
                 scrollState = scrollState,
+                focused = idx == focusedIdx
             )
         }
     }
@@ -99,6 +101,7 @@ fun MenuLevelContent(
 @Composable
 private fun MenuItem(
     modifier: Modifier = Modifier,
+    focused: Boolean,
     entry: ContextMenuEntry,
     state: HierarchicalContextMenuState,
     scrollState: ScrollState
@@ -137,7 +140,8 @@ private fun MenuItem(
                 leadingIcon = entry.leadingIcon?.let { painterResource(it) },
                 trailingIcon = entry.trailingIcon?.let { painterResource(it) },
                 enabled = entry.enabled,
-                interactionSource = interactionSource
+                interactionSource = interactionSource,
+                focused = focused
             )
 
             is ContextMenuEntry.Submenu -> MenuItemContent(
@@ -150,7 +154,8 @@ private fun MenuItem(
                 leadingIcon = entry.icon?.let { painterResource(it) },
                 trailingIcon = painterResource(Res.drawable.arrow_forward),
                 enabled = entry.enabled,
-                interactionSource = interactionSource
+                interactionSource = interactionSource,
+                focused = focused
             )
 
             is ContextMenuEntry.Divider -> Divider(color = ContextMenuTheme.colors.borderColor)
@@ -161,6 +166,7 @@ private fun MenuItem(
 @Composable
 fun MenuItemContent(
     label: String,
+    focused: Boolean,
     onClick: () -> Unit,
     interactionSource: MutableInteractionSource,
     modifier: Modifier = Modifier,
@@ -168,12 +174,9 @@ fun MenuItemContent(
     trailingIcon: Painter? = null,
     enabled: Boolean = true,
 ) {
-    val isFocusedOrHovered = interactionSource.collectIsFocusedAsState().value ||
-            interactionSource.collectIsHoveredAsState().value
-
     val backgroundColor = when {
         !enabled -> Color.Transparent
-        isFocusedOrHovered -> ContextMenuTheme.colors.selectedContainerColor
+        focused -> ContextMenuTheme.colors.selectedContainerColor
         else -> Color.Transparent
     }
 

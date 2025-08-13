@@ -25,7 +25,8 @@ class PopupContextMenuRepresentation : ContextMenuRepresentation {
                     content = {
                         MenuLevelContent(
                             items = menuLevel.items,
-                            state = state
+                            state = state,
+                            focusedIdx = menuLevel.focused
                         )
                     }
                 )
