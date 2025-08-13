@@ -34,7 +34,7 @@ fun ContextMenuArea(
     val state = rememberContextMenuState()
     Box(modifier = modifier.contextMenuOpenDetector(state, items)) {
         content()
-        ContextMenuTheme { LocalContextMenuRepresentation.current.Representation(state) }
+        LocalContextMenuRepresentation.current.Representation(state)
     }
 }
 
@@ -58,7 +58,7 @@ fun ContextMenuArea(
     content: @Composable () -> Unit
 ) {
     content()
-    ContextMenuTheme { LocalContextMenuRepresentation.current.Representation(state) }
+    LocalContextMenuRepresentation.current.Representation(state)
 }
 
 

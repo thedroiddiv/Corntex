@@ -7,9 +7,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 
 internal val LocalColors = staticCompositionLocalOf { darkContextMenuColor }
 internal val LocalTokens = staticCompositionLocalOf { defaultContextMenuTokens }
-
-internal val LocalTypography =
-    staticCompositionLocalOf<ContextMenuTypography> { ContextMenuTypography() }
+internal val LocalTypography = staticCompositionLocalOf { ContextMenuTypography() }
 
 object ContextMenuTheme {
     val colors: ContextMenuColor
@@ -30,7 +28,6 @@ fun ContextMenuTheme(
     content: @Composable () -> Unit
 ) {
 
-    MaterialTheme.typography
     CompositionLocalProvider(
         LocalColors provides colors,
         LocalTokens provides tokens,
