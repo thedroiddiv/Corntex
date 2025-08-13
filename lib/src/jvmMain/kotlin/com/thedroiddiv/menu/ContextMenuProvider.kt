@@ -2,7 +2,6 @@ package com.thedroiddiv.menu
 
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.remember
@@ -44,7 +43,7 @@ fun ContextMenuArea(
  * the context menu (e.g. on right-click).
  * @param content The content of the [ContextMenuArea].
  */
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ContextMenuArea(
     modifier: Modifier = Modifier,

@@ -1,6 +1,6 @@
 package com.thedroiddiv.menu.theme
 
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material.LocalContentColor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -32,6 +32,7 @@ fun ContextMenuTheme(
         LocalColors provides colors,
         LocalTokens provides tokens,
         LocalTypography provides typography,
+        LocalContentColor provides LocalColors.current.contentColor,
         content = content
     )
 }

@@ -21,11 +21,8 @@ import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Divider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -62,7 +59,8 @@ fun MenuLevelContent(
     maxWidth: Dp = 280.dp,
     maxHeight: Dp = 600.dp
 ) {
-    Surface(
+    val scrollState = rememberScrollState()
+    Column(
         modifier = modifier
             .widthIn(max = maxWidth)
             .shadow(
@@ -73,27 +71,24 @@ fun MenuLevelContent(
                 ContextMenuTheme.tokens.menuOutlineWidth,
                 ContextMenuTheme.colors.borderColor,
                 ContextMenuTheme.tokens.menuContainerShape
-            ),
-        shape = ContextMenuTheme.tokens.menuContainerShape,
-        color = ContextMenuTheme.colors.containerColor,
-        contentColor = ContextMenuTheme.colors.contentColor
+            )
+            .clip(ContextMenuTheme.tokens.menuContainerShape)
+            .background(
+                ContextMenuTheme.colors.containerColor,
+                ContextMenuTheme.tokens.menuContainerShape
+            )
+            .heightIn(max = maxHeight)
+            .focusTarget()
+            .padding(ContextMenuTheme.tokens.menuContainerPadding)
+            .verticalScroll(scrollState),
+        verticalArrangement = Arrangement.spacedBy(ContextMenuTheme.tokens.menuItemsSpacing)
     ) {
-        val scrollState = rememberScrollState()
-        Column(
-            modifier = Modifier
-                .heightIn(max = maxHeight)
-                .focusTarget()
-                .padding(ContextMenuTheme.tokens.menuContainerPadding)
-                .verticalScroll(scrollState),
-            verticalArrangement = Arrangement.spacedBy(ContextMenuTheme.tokens.menuItemsSpacing)
-        ) {
-            items.forEach { item ->
-                MenuItem(
-                    entry = item,
-                    state = state,
-                    scrollState = scrollState,
-                )
-            }
+        items.forEach { item ->
+            MenuItem(
+                entry = item,
+                state = state,
+                scrollState = scrollState,
+            )
         }
     }
 }
@@ -217,12 +212,12 @@ fun MenuItemContent(
             }
         }
         Spacer(Modifier.width(8.dp))
-        Text(
+        BasicText(
             text = label,
+            overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f),
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            color = contentColor,
+            color = { contentColor },
             style = ContextMenuTheme.typography.label
         )
         Spacer(Modifier.width(8.dp))
