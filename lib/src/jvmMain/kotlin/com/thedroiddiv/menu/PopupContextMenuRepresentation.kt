@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import com.thedroiddiv.menu.components.MenuLevelContent
+import org.jetbrains.annotations.VisibleForTesting
 
 class PopupContextMenuRepresentation : ContextMenuRepresentation {
     @Composable
@@ -85,7 +86,7 @@ class PopupContextMenuRepresentation : ContextMenuRepresentation {
         }
     }
 
-    private fun calculateAdjustedOffset(
+    internal fun calculateAdjustedOffset(
         originalOffset: IntOffset,
         menuSize: IntSize,
         screenBounds: IntRect,
