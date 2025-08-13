@@ -1,37 +1,32 @@
 package com.thedroiddiv.menu
+
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import org.junit.Assert.assertEquals
-import org.junit.Before
 import org.junit.Test
 
-class PopupContextMenuRepresentationTest {
+class AdjustedOffsetPopupPositionProviderTest {
 
-    private lateinit var representation: PopupContextMenuRepresentation
-    private lateinit var density: Density
-    private lateinit var screenBounds: IntRect
+    private lateinit var popupPositionProvider: AdjustedOffsetPopupPositionProvider
     private val paddingPx = 8 // 8dp at density=1f
-
-    @Before
-    fun setup() {
-        representation = PopupContextMenuRepresentation()
-        density = Density(1f) // 1 dp = 1 px
-        screenBounds = IntRect(0, 0, 200, 200)
-    }
 
     private fun adjust(
         originalOffset: IntOffset,
         menuSize: IntSize,
         menuIndex: Int
     ): IntOffset {
-        return representation.calculateAdjustedOffset(
-            originalOffset = originalOffset,
-            menuSize = menuSize,
-            screenBounds = screenBounds,
+        val windowSize = IntSize(200, 200)
+        popupPositionProvider = AdjustedOffsetPopupPositionProvider(
+            positionPx = originalOffset,
             menuIndex = menuIndex,
-            density = density
+            density = Density(1f)
+        )
+
+        return popupPositionProvider.calculateAdjustedOffset(
+            menuSize = menuSize,
+            screenBounds = IntRect(0, 0, windowSize.width, windowSize.height)
         )
     }
 
