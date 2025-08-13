@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thedroiddiv.menu.components
+package com.thedroiddiv.menu.components.material
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size

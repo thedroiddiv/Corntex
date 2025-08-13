@@ -19,8 +19,7 @@ class PopupContextMenuRepresentation : ContextMenuRepresentation {
                     properties = PopupProperties(
                         focusable = idx == 0,
                         dismissOnBackPress = true,
-                        dismissOnClickOutside = true,
-                        clippingEnabled = false
+                        dismissOnClickOutside = true
                     ),
                     onPreviewKeyEvent = { false },
                     content = {

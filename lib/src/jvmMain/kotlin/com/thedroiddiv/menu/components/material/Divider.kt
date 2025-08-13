@@ -15,7 +15,7 @@
  */
 
 
-package com.thedroiddiv.menu.components
+package com.thedroiddiv.menu.components.material
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

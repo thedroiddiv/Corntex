@@ -47,6 +47,8 @@ import com.thedroiddiv.menu.ContextMenuEntry
 import com.thedroiddiv.menu.HierarchicalContextMenuState
 import com.thedroiddiv.menu.Res
 import com.thedroiddiv.menu.arrow_forward
+import com.thedroiddiv.menu.components.material.Divider
+import com.thedroiddiv.menu.components.material.Icon
 import com.thedroiddiv.menu.theme.ContextMenuTheme
 import org.jetbrains.compose.resources.painterResource
 
