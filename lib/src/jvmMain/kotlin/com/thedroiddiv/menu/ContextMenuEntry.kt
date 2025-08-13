@@ -1,15 +1,12 @@
 package com.thedroiddiv.menu
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.graphics.vector.ImageVector
 import org.jetbrains.compose.resources.DrawableResource
 
 
 /**
  * Base sealed class for any entry that can be displayed in a context menu.
  */
-sealed class ContextMenuEntry {
+sealed interface ContextMenuEntry {
 
     /**
      * A clickable menu item with optional icon.
@@ -26,7 +23,7 @@ sealed class ContextMenuEntry {
         val trailingIcon: DrawableResource? = null,
         val enabled: Boolean = true,
         val onClick: () -> Unit
-    ) : ContextMenuEntry()
+    ) : ContextMenuEntry
 
     /**
      * A menu item that expands to show nested menu items.
@@ -41,10 +38,10 @@ sealed class ContextMenuEntry {
         val submenuItems: List<ContextMenuEntry>,
         val icon: DrawableResource? = null,
         val enabled: Boolean = true
-    ) : ContextMenuEntry()
+    ) : ContextMenuEntry
 
     /**
      * A visual separator line between menu items.
      */
-    object Divider : ContextMenuEntry()
+    object Divider : ContextMenuEntry
 }
