@@ -17,7 +17,6 @@ class PopupContextMenuRepresentation : ContextMenuRepresentation {
     override fun Representation(state: HierarchicalContextMenuState) {
         if (state.openMenus.isNotEmpty()) {
             state.openMenus.forEachIndexed { idx, menuLevel ->
-                // TODO: Decide which is best. Have multiple options here, position provider, cursor provider, etc
                 val menuSize = rememberMenuSizeConstraints(idx, menuLevel.position)
                 Popup(
                     popupPositionProvider = rememberContextMenuPopupPositionProvider(
@@ -30,14 +29,16 @@ class PopupContextMenuRepresentation : ContextMenuRepresentation {
                         dismissOnBackPress = true,
                         dismissOnClickOutside = true
                     ),
-                    onPreviewKeyEvent = { false },
+                    onPreviewKeyEvent = state::handleKeyEvent,
                     content = {
+                        val isTopMenu = idx == state.openMenus.lastIndex
                         MenuLevelContent(
                             items = menuLevel.items,
                             state = state,
                             focusedIdx = menuLevel.focused,
                             maxWidth = menuSize.width,
-                            maxHeight = menuSize.height
+                            maxHeight = menuSize.height,
+                            isTopMenu = isTopMenu
                         )
                     }
                 )
@@ -76,7 +77,7 @@ class PopupContextMenuRepresentation : ContextMenuRepresentation {
             val maxWidth = min(
                 maxW,
                 with(density) {
-                    if(menuIndex == 0){
+                    if (menuIndex == 0) {
                         containerSize.width.toDp() - position.x.toDp()
                     } else {
                         containerSize.width.toDp()

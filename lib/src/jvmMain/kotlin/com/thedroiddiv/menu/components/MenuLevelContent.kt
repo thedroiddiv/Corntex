@@ -59,9 +59,17 @@ fun MenuLevelContent(
     state: HierarchicalContextMenuState,
     modifier: Modifier = Modifier,
     maxWidth: Dp,
-    maxHeight: Dp
+    maxHeight: Dp,
+    isTopMenu: Boolean
 ) {
     val scrollState = rememberScrollState()
+
+    // TODO: can we do better? Test which scrollable submenus?
+    if (isTopMenu) {
+        LaunchedEffect(scrollState.value) {
+            state.reportTopMenuScroll(scrollState.value)
+        }
+    }
     Column(
         modifier = modifier
             .widthIn(max = maxWidth)
@@ -127,6 +135,7 @@ private fun MenuItem(
             positionInParent = coordinates.positionInParent().run {
                 IntOffset((x + coordinates.size.width).toInt(), y.toInt())
             }
+            state.reportItemOffset(entry, positionInParent)
         }
     ) {
         when (entry) {
