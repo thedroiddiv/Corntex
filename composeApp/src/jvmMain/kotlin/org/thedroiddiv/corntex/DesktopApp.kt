@@ -45,16 +45,6 @@ fun DesktopApp() {
             listOf(
                 ContextMenuItem("New file", leadingIcon = Res.drawable.folder) { },
                 ContextMenuItem("New Folder", leadingIcon = Res.drawable.folder) { },
-                ContextMenuItem("New file", leadingIcon = Res.drawable.folder) { },
-                ContextMenuItem("New Folder", leadingIcon = Res.drawable.folder) { },
-                ContextMenuItem("New file", leadingIcon = Res.drawable.folder) { },
-                ContextMenuItem("New Folder", leadingIcon = Res.drawable.folder) { },
-                ContextMenuItem("New file", leadingIcon = Res.drawable.folder) { },
-                ContextMenuItem("New Folder", leadingIcon = Res.drawable.folder) { },
-                ContextMenuItem("New file", leadingIcon = Res.drawable.folder) { },
-                ContextMenuItem("New Folder", leadingIcon = Res.drawable.folder) { },
-                ContextMenuItem("New file", leadingIcon = Res.drawable.folder) { },
-                ContextMenuItem("New Folder", leadingIcon = Res.drawable.folder) { },
                 Divider,
                 ContextMenuItem("Open In Split") { },
                 ContextSubmenuItem(

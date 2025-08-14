@@ -24,7 +24,7 @@ fun JBMonoFontFamily() = FontFamily(
 )
 
 @Immutable
-class ContextMenuTypography(
+data class ContextMenuTypography(
     val label: TextStyle = TextStyle.Default
 )
 

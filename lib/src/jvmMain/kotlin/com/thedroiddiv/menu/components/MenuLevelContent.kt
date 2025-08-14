@@ -38,15 +38,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.min
 import com.thedroiddiv.menu.ContextMenuEntry
 import com.thedroiddiv.menu.HierarchicalContextMenuState
 import com.thedroiddiv.menu.Res
@@ -161,7 +157,7 @@ private fun MenuItem(
                 focused = focused
             )
 
-            is ContextMenuEntry.Divider -> Divider(color = ContextMenuTheme.colors.borderColor)
+            is ContextMenuEntry.Divider -> Divider(color = ContextMenuTheme.colors.dividerColor)
         }
     }
 }

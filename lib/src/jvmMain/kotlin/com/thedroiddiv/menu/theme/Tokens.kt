@@ -1,9 +1,11 @@
 package com.thedroiddiv.menu.theme
 
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
+@Immutable
 data class ContextMenuTokens(
     val menuContainerCornerRadius: Dp,
     val menuItemCornerRadius: Dp,

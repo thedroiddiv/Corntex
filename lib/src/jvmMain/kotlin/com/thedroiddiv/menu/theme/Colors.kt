@@ -1,5 +1,6 @@
 package com.thedroiddiv.menu.theme
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 
 /**
@@ -14,7 +15,8 @@ import androidx.compose.ui.graphics.Color
  * @property disabledContainerColor The background color for disabled menu items.
  * @property disableContentColor The text and icon color for disabled menu items.
  */
-class ContextMenuColor(
+@Immutable
+data class ContextMenuColor(
     val containerColor: Color,
     val contentColor: Color,
     val selectedContainerColor: Color,
