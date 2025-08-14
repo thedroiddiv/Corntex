@@ -12,7 +12,8 @@ https://github.com/user-attachments/assets/c6fa77aa-65b2-4ae3-9e4d-a849c937c82f
 - **Right-click Detection**: Automatic context menu triggering on right-click  
 - **Hierarchical Menus**: Support for nested submenus with unlimited depth  
 - **Customizable Styling**: Theme-aware design with customizable colors and dimensions  
-- **Flexible Items**: Support for clickable items, submenus, and visual dividers  
+- **Flexible Items**: Support for clickable items, submenus, and visual dividers
+- **Keyboard Navigation** Supports fully functional keyboard navigation in menus using Arrow keys and Enter. 
   
 ## Quick Start  
 
