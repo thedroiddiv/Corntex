@@ -2,7 +2,10 @@
   
 A flexible and hierarchical context menu library for Compose Desktop applications that supports nested submenus, keyboard navigation, and customizable styling.  
 
-https://github.com/user-attachments/assets/1e266209-b833-48a8-bb4d-b5dddc9edf3b
+
+https://github.com/user-attachments/assets/c6fa77aa-65b2-4ae3-9e4d-a849c937c82f
+
+
   
 ## Features  
   
@@ -170,10 +173,15 @@ Modifier that detects right-click events and shows the context menu.
   
 ### Theme Customization  
   
-The library uses a theme system for consistent styling. You can customize colors and dimensions through the `ContextMenuTheme`:  
-  
+The library uses a theme system for consistent styling. You can customize colors, dimensions and typography through the `ContextMenuTheme`:  
 ```kotlin
-TODO()
+ContextMenuTheme(
+    colors = darkContextMenuColor // or provide a .copy/custom instance,
+    tokens = defaultContextMenuTokens // or provide a .copy/ustom instance,
+    typography = defaultContextMenuTypography // or provide a .copy/custom instance
+) {
+    DesktopApp()
+}
 ```
   
 ### Custom Representation  
