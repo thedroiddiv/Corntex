@@ -23,7 +23,6 @@ import androidx.compose.ui.window.PopupPositionProvider
  * in pixels.
  */
 class ContextMenuPopupPositionProvider(
-    val menuIndex: Int,
     val positionPx: IntOffset,
     val offsetPx: IntOffset = IntOffset.Zero, // todo: remove if not needed
     val windowMarginPx: Int,
@@ -48,7 +47,6 @@ class ContextMenuPopupPositionProvider(
      * @param positionPx The initial desired pixel offset for the popup.
      * @param menuSize The size of the popup content.
      * @param screenBounds The boundaries of the screen.
-     * @param menuIndex The index of the menu in a cascading menu structure.
      * @return The adjusted [IntOffset] for the popup.
      */
     internal fun calculateAdjustedOffset(
@@ -67,22 +65,7 @@ class ContextMenuPopupPositionProvider(
 
         when {
             positionPx.x + menuSize.width > screenBounds.right -> {
-                if (menuIndex > 0) {
-                    val leftPosition = positionPx.x - menuSize.width - windowMarginPx
-                    adjustedX = if (leftPosition >= screenBounds.left) {
-                        leftPosition
-                    } else {
-                        maxOf(
-                            screenBounds.left + windowMarginPx,
-                            minOf(
-                                screenBounds.right - menuSize.width - windowMarginPx,
-                                positionPx.x
-                            )
-                        )
-                    }
-                } else {
-                    adjustedX = screenBounds.right - menuSize.width - windowMarginPx
-                }
+               adjustedX = screenBounds.right - menuSize.width - windowMarginPx
             }
 
             positionPx.x < screenBounds.left -> {
@@ -135,7 +118,6 @@ fun rememberContextMenuPopupPositionProvider(
     val windowMarginPx = windowMargin.roundToPx()
     remember(positionPx, offsetPx, windowMarginPx) {
         ContextMenuPopupPositionProvider(
-            menuIndex = menuIndex,
             positionPx = positionPx,
             offsetPx = offsetPx,
             windowMarginPx = windowMarginPx
