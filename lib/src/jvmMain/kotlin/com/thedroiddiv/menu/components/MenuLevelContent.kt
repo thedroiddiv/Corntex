@@ -38,11 +38,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
 import com.thedroiddiv.menu.ContextMenuEntry
 import com.thedroiddiv.menu.HierarchicalContextMenuState
 import com.thedroiddiv.menu.Res
@@ -52,20 +56,20 @@ import com.thedroiddiv.menu.components.material.Icon
 import com.thedroiddiv.menu.theme.ContextMenuTheme
 import org.jetbrains.compose.resources.painterResource
 
-
 @Composable
 fun MenuLevelContent(
     items: List<ContextMenuEntry>,
     focusedIdx: Int?,
     state: HierarchicalContextMenuState,
     modifier: Modifier = Modifier,
-    maxWidth: Dp = 280.dp,
-    maxHeight: Dp = 600.dp
+    maxWidth: Dp,
+    maxHeight: Dp
 ) {
     val scrollState = rememberScrollState()
     Column(
         modifier = modifier
             .widthIn(max = maxWidth)
+            .heightIn(max = maxHeight)
             .shadow(
                 ContextMenuTheme.tokens.menuElevation,
                 ContextMenuTheme.tokens.menuContainerShape
@@ -80,7 +84,6 @@ fun MenuLevelContent(
                 ContextMenuTheme.colors.containerColor,
                 ContextMenuTheme.tokens.menuContainerShape
             )
-            .heightIn(max = maxHeight)
             .focusTarget()
             .padding(ContextMenuTheme.tokens.menuContainerPadding)
             .verticalScroll(scrollState),

@@ -13,6 +13,9 @@ data class ContextMenuTokens(
     val menuItemIconSize: Dp,
     val menuElevation: Dp,
     val menuOutlineWidth: Dp,
+    val menuMaxHeight: Dp,
+    val menuMaxWidth: Dp,
+    val menuMarginFromWindow: Dp,
 ) {
     val menuContainerShape = RoundedCornerShape(menuContainerCornerRadius)
     val menuItemShape = RoundedCornerShape(menuItemCornerRadius)
@@ -26,5 +29,8 @@ val defaultContextMenuTokens = ContextMenuTokens(
     menuItemsSpacing = 4.dp,
     menuItemIconSize = 12.dp,
     menuElevation = 16.dp,
-    menuOutlineWidth = (1).dp
+    menuOutlineWidth = (1).dp,
+    menuMaxHeight = 600.dp,
+    menuMaxWidth = 280.dp,
+    menuMarginFromWindow = 8.dp
 )

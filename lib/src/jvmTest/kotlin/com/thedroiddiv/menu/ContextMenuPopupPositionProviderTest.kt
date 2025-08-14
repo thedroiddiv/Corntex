@@ -1,15 +1,14 @@
 package com.thedroiddiv.menu
 
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class AdjustedOffsetPopupPositionProviderTest {
+class ContextMenuPopupPositionProviderTest {
 
-    private lateinit var popupPositionProvider: AdjustedOffsetPopupPositionProvider
+    private lateinit var popupPositionProvider: ContextMenuPopupPositionProvider
     private val paddingPx = 8 // 8dp at density=1f
 
     private fun adjust(
@@ -18,10 +17,11 @@ class AdjustedOffsetPopupPositionProviderTest {
         menuIndex: Int
     ): IntOffset {
         val windowSize = IntSize(200, 200)
-        popupPositionProvider = AdjustedOffsetPopupPositionProvider(
+        popupPositionProvider = ContextMenuPopupPositionProvider(
             positionPx = originalOffset,
             menuIndex = menuIndex,
-            density = Density(1f)
+            offsetPx = IntOffset.Zero,
+            windowMarginPx = paddingPx,
         )
 
         return popupPositionProvider.calculateAdjustedOffset(
