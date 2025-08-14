@@ -54,7 +54,7 @@ class PopupContextMenuRepresentation : ContextMenuRepresentation {
      * @return A [DpSize] representing the maximum width and height the menu can occupy.
      */
     @Composable
-    fun rememberMenuSizeConstraints(
+    internal fun rememberMenuSizeConstraints(
         menuIndex: Int,
         position: IntOffset
     ): DpSize {
