@@ -211,6 +211,8 @@ class HierarchicalContextMenuState {
      * @param bottomRight Position for submenu placement
      */
     fun onItemHover(item: ContextMenuEntry, bottomRight: IntOffset) {
+        if(!item.enabled) return
+        
         var itemIndex = -1
         val itemLevelIndex = openMenus.indexOfFirst {
             itemIndex = it.items.indexOfFirst { it === item }
@@ -223,7 +225,7 @@ class HierarchicalContextMenuState {
             itemLevelIndex
         ) + openMenus[itemLevelIndex].copy(focused = itemIndex)
 
-        openMenus = if (item is ContextMenuEntry.Submenu && item.enabled) {
+        openMenus = if (item is ContextMenuEntry.Submenu) {
             val isAlreadyOpen = newMenuStack.size > itemLevelIndex + 1 &&
                     newMenuStack.getOrNull(itemLevelIndex + 1)?.items == item.submenuItems
 

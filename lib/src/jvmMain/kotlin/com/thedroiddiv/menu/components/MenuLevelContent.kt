@@ -23,6 +23,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -49,8 +50,10 @@ import com.thedroiddiv.menu.arrow_forward
 import com.thedroiddiv.menu.components.material.Divider
 import com.thedroiddiv.menu.components.material.Icon
 import com.thedroiddiv.menu.theme.ContextMenuTheme
+import kotlinx.coroutines.coroutineScope
 import org.jetbrains.compose.resources.painterResource
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun MenuLevelContent(
     items: List<ContextMenuEntry>,
@@ -63,12 +66,37 @@ fun MenuLevelContent(
 ) {
     val scrollState = rememberScrollState()
 
-    // TODO: can we do better? Test which scrollable submenus?
+    // TODO: can we do better? Test with scrollable submenus?
     if (isTopMenu) {
         LaunchedEffect(scrollState.value) {
             state.reportTopMenuScroll(scrollState.value)
         }
     }
+
+    // TODO: can we do better? Hide unnecessary details behind a side-effect
+    val itemLayouts = remember { mutableStateMapOf<Int, Pair<Float, Int>>() } // y-offset, height
+    LaunchedEffect(focusedIdx) {
+        val viewportHeight = scrollState.viewportSize
+        if (focusedIdx == null || !isTopMenu) return@LaunchedEffect
+        val layout = itemLayouts[focusedIdx] ?: return@LaunchedEffect
+
+        val (itemTop, itemHeight) = layout
+        val viewTop = scrollState.value
+        val viewBottom = scrollState.value + viewportHeight
+        val newScrollPosition = if (itemTop < viewTop) {
+            itemTop.toInt()
+        } else if (itemTop + itemHeight > viewBottom) {
+            (itemTop + itemHeight - viewportHeight).toInt()
+        } else {
+            null
+        }
+        if (newScrollPosition != null) {
+            coroutineScope {
+                scrollState.animateScrollTo(newScrollPosition)
+            }
+        }
+    }
+
     Column(
         modifier = modifier
             .widthIn(max = maxWidth)
@@ -96,7 +124,13 @@ fun MenuLevelContent(
                 entry = item,
                 state = state,
                 scrollState = scrollState,
-                focused = idx == focusedIdx
+                focused = idx == focusedIdx,
+                modifier = Modifier.onGloballyPositioned { coordinates ->
+                    itemLayouts[idx] = Pair(
+                        coordinates.positionInParent().y,
+                        coordinates.size.height
+                    )
+                }
             )
         }
     }
@@ -122,7 +156,9 @@ private fun MenuItem(
                 state.reportItemOffset(entry, positionInParent)
             }
             .onPointerEvent(PointerEventType.Enter) {
-                state.onItemHover(entry, positionInParent.let { it.copy(y = it.y - scrollState.value) })
+                if(entry.enabled) {
+                    state.onItemHover(entry, positionInParent.let { it.copy(y = it.y - scrollState.value) })
+                }
             }
     ) {
         when (entry) {
