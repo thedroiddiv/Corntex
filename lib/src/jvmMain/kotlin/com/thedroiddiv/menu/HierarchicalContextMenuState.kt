@@ -31,11 +31,6 @@ class HierarchicalContextMenuState {
     private val itemOffsets = IdentityHashMap<ContextMenuEntry, IntOffset>()
 
     /**
-     * Stores the current scroll position of the top-most menu.
-     */
-    private var topMenuScroll: Int = 0
-
-    /**
      * Shows a context menu at the specified position.
      *
      * @param position Screen coordinates where the menu should appear
@@ -43,7 +38,7 @@ class HierarchicalContextMenuState {
      */
     fun show(position: IntOffset, items: List<ContextMenuEntry>) {
         clearVolatileState()
-        openMenus = listOf(MenuLevel(items = items, focused = null, position = position))
+        openMenus = listOf(MenuLevel(items = items, focused = null, position = position, scroll = 0))
     }
 
     /**
@@ -59,7 +54,6 @@ class HierarchicalContextMenuState {
      */
     private fun clearVolatileState() {
         itemOffsets.clear()
-        topMenuScroll = 0
     }
 
     /**
@@ -71,11 +65,17 @@ class HierarchicalContextMenuState {
     }
 
     /**
-     * Callback for the top-most menu to report its scroll position.
+     * Callback for a menu to report its scroll position.
+     * @param levelIndex The index of the menu level that is scrolling.
+     * @param scroll The new scroll position in pixels.
      */
-    fun reportTopMenuScroll(scroll: Int) {
-        topMenuScroll = scroll
+    fun reportMenuScroll(levelIndex: Int, scroll: Int) {
+        openMenus.getOrNull(levelIndex)?.let { currentMenu ->
+            val updatedMenu = currentMenu.copy(scroll = scroll)
+            openMenus = openMenus.toMutableList().apply { set(levelIndex, updatedMenu) }
+        }
     }
+
 
     /**
      * Handles key events to enable keyboard navigation.
@@ -166,18 +166,19 @@ class HierarchicalContextMenuState {
         val item = getFocusedItem() ?: return
         if (item is ContextMenuEntry.Submenu && item.enabled) {
             val itemOffset = itemOffsets[item] ?: return
-            val isAlreadyOpen = openMenus.size > openMenus.size &&
-                    openMenus.getOrNull(openMenus.size)?.items == item.submenuItems
+            val isAlreadyOpen = openMenus.size > 1 &&
+                    openMenus.lastOrNull()?.items == item.submenuItems
             if (isAlreadyOpen) return
             val parentMenuLevel = openMenus.last()
             val subMenuPosition = IntOffset(
                 parentMenuLevel.position.x + itemOffset.x,
-                parentMenuLevel.position.y + itemOffset.y
+                parentMenuLevel.position.y + itemOffset.y - parentMenuLevel.scroll
             )
             openMenus = openMenus + MenuLevel(
                 items = item.submenuItems,
                 focused = null,
-                position = subMenuPosition
+                position = subMenuPosition,
+                scroll = 0
             )
         }
     }
@@ -208,9 +209,9 @@ class HierarchicalContextMenuState {
      * Handles hovering over a menu item, opening submenus as needed.
      *
      * @param item The menu item being hovered
-     * @param bottomRight Position for submenu placement
+     * @param itemOffset Position for submenu entry in top-most menu on stack
      */
-    fun onItemHover(item: ContextMenuEntry, bottomRight: IntOffset) {
+    fun onItemHover(item: ContextMenuEntry, itemOffset: IntOffset) {
         if(!item.enabled) return
         var itemIndex = -1
         val itemLevelIndex = openMenus.indexOfFirst {
@@ -229,16 +230,16 @@ class HierarchicalContextMenuState {
                     newMenuStack.getOrNull(itemLevelIndex + 1)?.items == item.submenuItems
 
             if (!isAlreadyOpen) {
-                val prev = newMenuStack.lastOrNull()
-                val subMenuPosition = if (prev == null) {
-                    IntOffset(bottomRight.x, bottomRight.y)
-                } else {
-                    IntOffset(prev.position.x + bottomRight.x, prev.position.y + bottomRight.y)
-                }
+                val parentMenuLevel = openMenus.last()
+                val subMenuPosition = IntOffset(
+                    parentMenuLevel.position.x + itemOffset.x,
+                    parentMenuLevel.position.y + itemOffset.y - parentMenuLevel.scroll
+                )
                 newMenuStack + MenuLevel(
                     items = item.submenuItems,
                     focused = null,
-                    position = subMenuPosition
+                    position = subMenuPosition,
+                    scroll = 0
                 )
             } else {
                 newMenuStack

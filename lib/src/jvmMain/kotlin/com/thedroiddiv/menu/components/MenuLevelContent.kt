@@ -1,7 +1,6 @@
 package com.thedroiddiv.menu.components
 
 
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -59,15 +58,12 @@ fun MenuLevelContent(
     modifier: Modifier = Modifier,
     maxWidth: Dp,
     maxHeight: Dp,
-    isTopMenu: Boolean
+    levelIndex: Int
 ) {
     val scrollState = rememberScrollState()
-
-    // TODO: can we do better? Test which scrollable submenus?
-    if (isTopMenu) {
-        LaunchedEffect(scrollState.value) {
-            state.reportTopMenuScroll(scrollState.value)
-        }
+    // TODO: Report only when the scrolling is stopped. This can cause too much updates
+    LaunchedEffect(scrollState.value) {
+        state.reportMenuScroll(levelIndex, scrollState.value)
     }
     Column(
         modifier = modifier
@@ -95,7 +91,6 @@ fun MenuLevelContent(
             MenuItem(
                 entry = item,
                 state = state,
-                scrollState = scrollState,
                 focused = idx == focusedIdx
             )
         }
@@ -109,8 +104,7 @@ private fun MenuItem(
     modifier: Modifier = Modifier,
     focused: Boolean,
     entry: ContextMenuEntry,
-    state: HierarchicalContextMenuState,
-    scrollState: ScrollState
+    state: HierarchicalContextMenuState
 ) {
     var positionInParent by remember { mutableStateOf(IntOffset.Zero) }
     Box(
@@ -123,7 +117,7 @@ private fun MenuItem(
             }
             .onPointerEvent(PointerEventType.Enter) {
                 if(entry.enabled) {
-                    state.onItemHover(entry, positionInParent.let { it.copy(y = it.y - scrollState.value) })
+                    state.onItemHover(entry, positionInParent)
                 }
             }
     ) {

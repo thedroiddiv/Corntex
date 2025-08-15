@@ -31,14 +31,13 @@ class PopupContextMenuRepresentation : ContextMenuRepresentation {
                     ),
                     onPreviewKeyEvent = state::handleKeyEvent,
                     content = {
-                        val isTopMenu = idx == state.openMenus.lastIndex
                         MenuLevelContent(
                             items = menuLevel.items,
                             state = state,
                             focusedIdx = menuLevel.focused,
                             maxWidth = menuSize.width,
                             maxHeight = menuSize.height,
-                            isTopMenu = isTopMenu
+                            levelIndex = idx,
                         )
                     }
                 )

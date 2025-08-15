@@ -15,4 +15,5 @@ data class MenuLevel(
     val items: List<ContextMenuEntry>,
     val focused: Int?,
     val position: IntOffset,
+    val scroll: Int
 )
