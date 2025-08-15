@@ -5,9 +5,6 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsFocusedAsState
-import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,12 +27,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.testTag
@@ -88,7 +87,6 @@ fun MenuLevelContent(
                 ContextMenuTheme.colors.containerColor,
                 ContextMenuTheme.tokens.menuContainerShape
             )
-            .focusTarget()
             .padding(ContextMenuTheme.tokens.menuContainerPadding)
             .verticalScroll(scrollState),
         verticalArrangement = Arrangement.spacedBy(ContextMenuTheme.tokens.menuItemsSpacing)
@@ -105,6 +103,7 @@ fun MenuLevelContent(
 }
 
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun MenuItem(
     modifier: Modifier = Modifier,
@@ -113,30 +112,18 @@ private fun MenuItem(
     state: HierarchicalContextMenuState,
     scrollState: ScrollState
 ) {
-    val interactionSource = remember { MutableInteractionSource() }
     var positionInParent by remember { mutableStateOf(IntOffset.Zero) }
-
-    val isHovered = interactionSource.collectIsHoveredAsState().value
-    LaunchedEffect(isHovered) {
-        if (isHovered) {
-            state.onItemHover(entry, positionInParent.let { it.copy(y = it.y - scrollState.value) })
-        }
-    }
-
-    val isFocused = interactionSource.collectIsFocusedAsState().value
-    LaunchedEffect(isFocused) {
-        if (isFocused) {
-            state.onItemHover(entry, positionInParent.let { it.copy(y = it.y - scrollState.value) })
-        }
-    }
-
     Box(
-        modifier = modifier.onGloballyPositioned { coordinates ->
-            positionInParent = coordinates.positionInParent().run {
-                IntOffset((x + coordinates.size.width).toInt(), y.toInt())
+        modifier = modifier
+            .onGloballyPositioned { coordinates ->
+                positionInParent = coordinates.positionInParent().run {
+                    IntOffset((x + coordinates.size.width).toInt(), y.toInt())
+                }
+                state.reportItemOffset(entry, positionInParent)
             }
-            state.reportItemOffset(entry, positionInParent)
-        }
+            .onPointerEvent(PointerEventType.Enter) {
+                state.onItemHover(entry, positionInParent.let { it.copy(y = it.y - scrollState.value) })
+            }
     ) {
         when (entry) {
             is ContextMenuEntry.Single -> MenuItemContent(
@@ -148,7 +135,6 @@ private fun MenuItem(
                 leadingIcon = entry.leadingIcon?.let { painterResource(it) },
                 trailingIcon = entry.trailingIcon?.let { painterResource(it) },
                 enabled = entry.enabled,
-                interactionSource = interactionSource,
                 focused = focused
             )
 
@@ -162,7 +148,6 @@ private fun MenuItem(
                 leadingIcon = entry.icon?.let { painterResource(it) },
                 trailingIcon = painterResource(Res.drawable.arrow_forward),
                 enabled = entry.enabled,
-                interactionSource = interactionSource,
                 focused = focused
             )
 
@@ -176,7 +161,6 @@ fun MenuItemContent(
     label: String,
     focused: Boolean,
     onClick: () -> Unit,
-    interactionSource: MutableInteractionSource,
     modifier: Modifier = Modifier,
     leadingIcon: Painter? = null,
     trailingIcon: Painter? = null,
@@ -201,7 +185,7 @@ fun MenuItemContent(
             .clickable(
                 enabled = enabled,
                 onClick = onClick,
-                interactionSource = interactionSource,
+                interactionSource = null,
                 indication = null
             )
             .sizeIn(
