@@ -16,7 +16,6 @@ import java.util.IdentityHashMap
  * State holder for hierarchical context menus that supports nested submenus.
  */
 // TODO: Tests for keyboard interactions
-@Stable
 class HierarchicalContextMenuState {
 
     /**
