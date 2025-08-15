@@ -7,6 +7,7 @@ import org.jetbrains.compose.resources.DrawableResource
  * Base sealed class for any entry that can be displayed in a context menu.
  */
 sealed interface ContextMenuEntry {
+    val enabled: Boolean
 
     /**
      * A clickable menu item with optional icon.
@@ -21,7 +22,7 @@ sealed interface ContextMenuEntry {
         val label: String,
         val leadingIcon: DrawableResource? = null,
         val trailingIcon: DrawableResource? = null,
-        val enabled: Boolean = true,
+        override val enabled: Boolean = true,
         val onClick: () -> Unit
     ) : ContextMenuEntry
 
@@ -37,11 +38,14 @@ sealed interface ContextMenuEntry {
         val label: String,
         val submenuItems: List<ContextMenuEntry>,
         val icon: DrawableResource? = null,
-        val enabled: Boolean = true
+        override val enabled: Boolean = true
     ) : ContextMenuEntry
 
     /**
      * A visual separator line between menu items.
      */
-    object Divider : ContextMenuEntry
+    object Divider : ContextMenuEntry {
+        // By default Ignore any interactions on divider
+        override val enabled: Boolean = false
+    }
 }

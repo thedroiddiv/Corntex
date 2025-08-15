@@ -205,7 +205,6 @@ class MenuLevelContentTest {
                 MenuItemContent(
                     label = label,
                     onClick = {},
-                    interactionSource = androidx.compose.runtime.remember { MutableInteractionSource() },
                     enabled = true,
                     focused = false,
                     modifier = Modifier.testTag("menuItemContent")
@@ -225,7 +224,6 @@ class MenuLevelContentTest {
                 MenuItemContent(
                     label = label,
                     onClick = mockOnClick,
-                    interactionSource = androidx.compose.runtime.remember { MutableInteractionSource() },
                     enabled = false,
                     focused = false,
                     modifier = Modifier.testTag("menuItemContentDisabled")
@@ -244,14 +242,11 @@ class MenuLevelContentTest {
     @Test
     fun menuItemContent_focused_hasCorrectBackgroundColor() {
         val label = "Focus Item"
-        val interactionSource = MutableInteractionSource()
-
         composeTestRule.setContent {
             ContextMenuTheme {
                 MenuItemContent(
                     label = label,
                     onClick = {},
-                    interactionSource = interactionSource,
                     enabled = true,
                     focused = true,
                     modifier = Modifier.testTag("focusableItem")
@@ -273,7 +268,6 @@ class MenuLevelContentTest {
                 MenuItemContent(
                     label = "Item with Icon",
                     onClick = {},
-                    interactionSource = androidx.compose.runtime.remember { MutableInteractionSource() },
                     leadingIcon = painterResource(testIconRes),
                     focused = false,
                     modifier = Modifier.testTag("itemWithLeadingIcon")
@@ -296,7 +290,6 @@ class MenuLevelContentTest {
                 MenuItemContent(
                     label = "Item with Trailing",
                     onClick = {},
-                    interactionSource = remember { MutableInteractionSource() },
                     trailingIcon = painterResource(testIconRes),
                     modifier = Modifier.testTag("itemWithTrailingIcon"),
                     focused = false
@@ -321,7 +314,6 @@ class MenuLevelContentTest {
                     MenuItemContent(
                         label = longLabel,
                         onClick = {},
-                        interactionSource = remember { MutableInteractionSource() },
                         focused = false
                     )
                 }

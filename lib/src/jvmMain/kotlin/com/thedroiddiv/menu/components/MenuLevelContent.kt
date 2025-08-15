@@ -122,7 +122,9 @@ private fun MenuItem(
                 state.reportItemOffset(entry, positionInParent)
             }
             .onPointerEvent(PointerEventType.Enter) {
-                state.onItemHover(entry, positionInParent.let { it.copy(y = it.y - scrollState.value) })
+                if(entry.enabled) {
+                    state.onItemHover(entry, positionInParent.let { it.copy(y = it.y - scrollState.value) })
+                }
             }
     ) {
         when (entry) {
