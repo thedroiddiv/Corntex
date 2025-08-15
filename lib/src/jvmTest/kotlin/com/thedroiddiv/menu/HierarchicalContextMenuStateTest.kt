@@ -86,7 +86,6 @@ class HierarchicalContextMenuStateTest {
         assertEquals(sub2Items, state.openMenus[1].items)
     }
 
-    // FIXME: Failing test
     @Test
     fun onItemHover_does_not_duplicate_submenu_if_already_open() {
         val submenuItems = listOf(single("Child"))
@@ -111,6 +110,56 @@ class HierarchicalContextMenuStateTest {
         state.show(IntOffset(0, 0), newRoot)
         state.onItemHover(simpleItem, IntOffset(2, 2))
         assertEquals(1, state.openMenus.size)
+    }
+
+    // When two or more nested menus are open, and the user hovers a menu below in stack, position is calculated correctly
+    @Test
+    fun `submenu position is calculated correctly when multiple menus are open`() {
+        val menu = listOf(
+            single("A"),
+            submenu(
+                "B",
+                single("B.1"),
+                submenu(
+                    "B.2",
+                    single("B.2.a")
+                )
+            ),
+            submenu(
+                "C",
+                single("C.1"),
+                single("C.2")
+
+            )
+        )
+
+        // Hover on B -> B.2 -> B.2.a
+        // Verify top level menu contains only one single item with label B.2.a
+        // open menu, top menu at 0,0
+        state.show(IntOffset(0, 0), menu)
+        // hover on B, top menu at 1, 1
+        state.onItemHover(menu[1], IntOffset(1, 1))
+        assertEquals(
+            (menu[1] as ContextMenuEntry.Submenu).submenuItems,
+            state.openMenus.last().items
+        )
+        assertEquals(IntOffset(1, 1), state.openMenus.last().position)
+        // hover on B.2, top menu at (1+2, 1+2)
+        state.onItemHover((menu[1] as ContextMenuEntry.Submenu).submenuItems[1], IntOffset(2, 2))
+        assertEquals(
+            ((menu[1] as ContextMenuEntry.Submenu).submenuItems[1] as ContextMenuEntry.Submenu).submenuItems,
+            state.openMenus.last().items
+        )
+        assertEquals(IntOffset(3, 3), state.openMenus.last().position)
+
+        // Now hover on C, offset should be (0+1, 0+3)
+        // Verify top level menu contains only on two single items with label C.1 and C.2, with correct offset
+        state.onItemHover(menu[2], IntOffset(1, 3))
+        assertEquals(
+            (menu[2] as ContextMenuEntry.Submenu).submenuItems,
+            state.openMenus.last().items
+        )
+        assertEquals(IntOffset(1, 3), state.openMenus.last().position)
     }
 
     @Test

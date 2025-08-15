@@ -231,7 +231,7 @@ class HierarchicalContextMenuState {
                     openMenus[itemLevelIndex + 1].items == item.submenuItems
 
             if (isAlreadyOpen) return
-            val parentMenuLevel = openMenus.last()
+            val parentMenuLevel = openMenus[itemLevelIndex]
             val subMenuPosition = IntOffset(
                 parentMenuLevel.position.x + itemOffset.x,
                 parentMenuLevel.position.y + itemOffset.y - parentMenuLevel.scroll
