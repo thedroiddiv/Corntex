@@ -212,7 +212,7 @@ class HierarchicalContextMenuState {
      * @param itemOffset Position for submenu entry in top-most menu on stack
      */
     fun onItemHover(item: ContextMenuEntry, itemOffset: IntOffset) {
-        if(!item.enabled) return
+        if (!item.enabled) return
         var itemIndex = -1
         val itemLevelIndex = openMenus.indexOfFirst {
             itemIndex = it.items.indexOfFirst { it === item }
@@ -226,25 +226,23 @@ class HierarchicalContextMenuState {
         ) + openMenus[itemLevelIndex].copy(focused = itemIndex)
 
         openMenus = if (item is ContextMenuEntry.Submenu) {
-            // Fixme: This logic is incorrect
-            val isAlreadyOpen = newMenuStack.size > itemLevelIndex + 1 &&
-                    newMenuStack.getOrNull(itemLevelIndex + 1)?.items == item.submenuItems
+            // Check if the submenu is already open at the next level
+            val isAlreadyOpen = openMenus.size > itemLevelIndex + 1 &&
+                    openMenus[itemLevelIndex + 1].items == item.submenuItems
 
-            if (!isAlreadyOpen) {
-                val parentMenuLevel = openMenus.last()
-                val subMenuPosition = IntOffset(
-                    parentMenuLevel.position.x + itemOffset.x,
-                    parentMenuLevel.position.y + itemOffset.y - parentMenuLevel.scroll
-                )
-                newMenuStack + MenuLevel(
-                    items = item.submenuItems,
-                    focused = null,
-                    position = subMenuPosition,
-                    scroll = 0
-                )
-            } else {
-                newMenuStack
-            }
+            if (isAlreadyOpen) return
+            val parentMenuLevel = openMenus.last()
+            val subMenuPosition = IntOffset(
+                parentMenuLevel.position.x + itemOffset.x,
+                parentMenuLevel.position.y + itemOffset.y - parentMenuLevel.scroll
+            )
+            newMenuStack + MenuLevel(
+                items = item.submenuItems,
+                focused = null,
+                position = subMenuPosition,
+                scroll = 0
+            )
+
         } else {
             newMenuStack
         }
