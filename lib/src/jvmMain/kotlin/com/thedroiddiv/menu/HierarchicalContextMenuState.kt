@@ -226,6 +226,7 @@ class HierarchicalContextMenuState {
         ) + openMenus[itemLevelIndex].copy(focused = itemIndex)
 
         openMenus = if (item is ContextMenuEntry.Submenu) {
+            // Fixme: This logic is incorrect
             val isAlreadyOpen = newMenuStack.size > itemLevelIndex + 1 &&
                     newMenuStack.getOrNull(itemLevelIndex + 1)?.items == item.submenuItems
 

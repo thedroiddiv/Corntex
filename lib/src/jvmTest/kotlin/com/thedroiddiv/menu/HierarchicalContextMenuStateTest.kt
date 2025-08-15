@@ -1,10 +1,15 @@
 package com.thedroiddiv.menu
 
+import androidx.compose.ui.InternalComposeUiApi
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.unit.IntOffset
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 
+@OptIn(InternalComposeUiApi::class)
 class HierarchicalContextMenuStateTest {
 
     private lateinit var state: HierarchicalContextMenuState
@@ -81,6 +86,7 @@ class HierarchicalContextMenuStateTest {
         assertEquals(sub2Items, state.openMenus[1].items)
     }
 
+    // FIXME: Failing test
     @Test
     fun onItemHover_does_not_duplicate_submenu_if_already_open() {
         val submenuItems = listOf(single("Child"))
@@ -135,5 +141,178 @@ class HierarchicalContextMenuStateTest {
 
         val expectedPos = IntOffset(15 + sub2BottomRight.x, 15 + sub2BottomRight.y)
         assertEquals(expectedPos, state.openMenus[2].position)
+    }
+
+    @Test
+    fun `key handler returns false for non-keydown events`() {
+        state.show(IntOffset.Zero, listOf(single("A")))
+        assertFalse(state.handleKeyEvent(KeyEvent(Key.DirectionDown, KeyEventType.KeyUp)))
+    }
+
+    @Test
+    fun `key handler returns false for unhandled keys`() {
+        state.show(IntOffset.Zero, listOf(single("A")))
+        assertFalse(state.handleKeyEvent(KeyEvent(Key.A, KeyEventType.KeyDown)))
+    }
+
+    @Test
+    fun `key handler returns false if no menus are open`() {
+        assertFalse(state.handleKeyEvent(KeyEvent(Key.DirectionDown, KeyEventType.KeyDown)))
+    }
+
+    @Test
+    fun `down arrow focuses first enabled item when none is focused`() {
+        val items = listOf(single("A"), single("B"))
+        state.show(IntOffset.Zero, items)
+
+        val handled = state.handleKeyEvent(KeyEvent(Key.DirectionDown, KeyEventType.KeyDown))
+
+        assertTrue(handled)
+        assertEquals(0, state.openMenus.last().focused)
+    }
+
+    @Test
+    fun `up arrow focuses last enabled item when none is focused`() {
+        val items = listOf(single("A"), single("B"), single("C"))
+        state.show(IntOffset.Zero, items)
+
+        
+        val handled = state.handleKeyEvent(KeyEvent(Key.DirectionUp, KeyEventType.KeyDown))
+
+        assertTrue(handled)
+        assertEquals(2, state.openMenus.last().focused)
+    }
+
+    @Test
+    fun `arrow keys cycle through enabled items only`() {
+        val items = listOf(
+            single("A"),
+            single("B", enabled = false),
+            ContextMenuEntry.Divider,
+            single("C")
+        )
+        state.show(IntOffset.Zero, items)
+
+        // From none to first enabled (A at index 0)
+        state.handleKeyEvent(KeyEvent(Key.DirectionDown, KeyEventType.KeyDown))
+        assertEquals(0, state.openMenus.last().focused)
+
+        // From A to next enabled (C at index 3), skipping B and Divider
+        state.handleKeyEvent(KeyEvent(Key.DirectionDown, KeyEventType.KeyDown))
+        assertEquals(3, state.openMenus.last().focused)
+
+        // From C wraps around to A
+        state.handleKeyEvent(KeyEvent(Key.DirectionDown, KeyEventType.KeyDown))
+        assertEquals(0, state.openMenus.last().focused)
+
+        // From A wraps back to C with Up arrow
+        state.handleKeyEvent(KeyEvent(Key.DirectionUp, KeyEventType.KeyDown))
+        assertEquals(3, state.openMenus.last().focused)
+    }
+
+    @Test
+    fun `arrow keys do nothing if no items are enabled`() {
+        val items = listOf(
+            single("A", enabled = false),
+            ContextMenuEntry.Divider,
+            single("B", enabled = false)
+        )
+        state.show(IntOffset.Zero, items)
+
+        state.handleKeyEvent(KeyEvent(Key.DirectionDown, KeyEventType.KeyDown))
+
+        assertNull(state.openMenus.last().focused)
+    }
+
+    @Test
+    fun `left arrow closes submenu if one is open`() {
+        val child = single("Child")
+        val parent = submenu("Parent", child)
+        state.show(IntOffset.Zero, listOf(parent))
+        // Parent >
+        //          Child
+        // Manually open submenu to simulate state
+        state.onItemHover(parent, IntOffset(10, 20))
+        assertEquals(2, state.openMenus.size)
+
+        val handled = state.handleKeyEvent(KeyEvent(Key.DirectionLeft, KeyEventType.KeyDown))
+
+        assertTrue(handled)
+        assertEquals(1, state.openMenus.size)
+    }
+
+    @Test
+    fun `left arrow does nothing on root menu`() {
+        state.show(IntOffset.Zero, listOf(single("A")))
+        assertEquals(1, state.openMenus.size)
+
+        val handled = state.handleKeyEvent(KeyEvent(Key.DirectionLeft, KeyEventType.KeyDown))
+
+        assertTrue(handled) // Event is still "handled" to prevent propagation
+        assertEquals(1, state.openMenus.size)
+    }
+
+    @Test
+    fun `right arrow opens focused and enabled submenu`() {
+        val child = single("Child")
+        val parent = submenu("Parent", child)
+        state.show(IntOffset(10, 20), listOf(parent))
+
+        state.handleKeyEvent(KeyEvent(Key.DirectionDown, KeyEventType.KeyDown))
+        assertEquals(0, state.openMenus.last().focused)
+
+        val itemOffset = IntOffset(100, 50)
+        state.reportItemOffset(parent, itemOffset)
+
+        val handled = state.handleKeyEvent(KeyEvent(Key.DirectionRight, KeyEventType.KeyDown))
+
+        assertTrue(handled)
+        assertEquals(2, state.openMenus.size)
+        assertEquals(listOf(child), state.openMenus.last().items)
+
+        val expectedPosition = IntOffset(10 + itemOffset.x, 20 + itemOffset.y)
+        assertEquals(expectedPosition, state.openMenus.last().position)
+    }
+
+    @Test
+    fun `right arrow does nothing on a single item`() {
+        val item = single("A")
+        state.show(IntOffset.Zero, listOf(item))
+        state.handleKeyEvent(KeyEvent(Key.DirectionDown, KeyEventType.KeyDown)) // Focus item
+
+        val handled = state.handleKeyEvent(KeyEvent(Key.DirectionRight, KeyEventType.KeyDown))
+        assertTrue(handled)
+        assertEquals(1, state.openMenus.size)
+    }
+
+    @Test
+    fun `enter key performs click on focused single item and hides menu`() {
+        val items = listOf(single("A"), single("B"))
+        state.show(IntOffset.Zero, items)
+        state.handleKeyEvent(KeyEvent(Key.DirectionDown, KeyEventType.KeyDown))
+        state.handleKeyEvent(KeyEvent(Key.DirectionDown, KeyEventType.KeyDown))
+
+        assertEquals(1, state.openMenus.last().focused)
+
+        val handled = state.handleKeyEvent(KeyEvent(Key.Enter, KeyEventType.KeyDown))
+
+        assertTrue(handled)
+        assertEquals(listOf("B"), clickSpy)
+        assertTrue(state.openMenus.isEmpty())
+    }
+
+    @Test
+    fun `enter key opens focused submenu`() {
+        val child = single("Child")
+        val parent = submenu("Parent", child)
+        state.show(IntOffset.Zero, listOf(parent))
+        state.handleKeyEvent(KeyEvent(Key.DirectionDown, KeyEventType.KeyDown))
+        state.reportItemOffset(parent, IntOffset(100, 50))
+
+        val handled = state.handleKeyEvent(KeyEvent(Key.Enter, KeyEventType.KeyDown))
+
+        assertTrue(handled)
+        assertEquals(2, state.openMenus.size)
+        assertEquals(listOf(child), state.openMenus.last().items)
     }
 }

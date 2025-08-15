@@ -74,7 +74,7 @@ class MenuLevelContentTest {
                     maxHeight = maxHeight,
                     modifier = Modifier.testTag("menuLevelContent"),
                     focusedIdx = focusedIdx,
-                    isTopMenu = false
+                    levelIndex = 0
                 )
             }
         }
