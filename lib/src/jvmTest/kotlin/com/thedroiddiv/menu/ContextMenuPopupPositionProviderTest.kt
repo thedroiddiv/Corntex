@@ -3,6 +3,7 @@ package com.thedroiddiv.menu
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -62,5 +63,32 @@ class ContextMenuPopupPositionProviderTest {
     fun `menu off top edge - shift down`() {
         val result = adjust(IntOffset(50, -10), IntSize(40, 40))
         assertEquals(IntOffset(50, paddingPx), result)
+    }
+
+    @Test
+    fun `calculatePosition returns same result as calculateAdjustedOffset`() {
+
+        val originalOffset = IntOffset(50, -10)
+        val menuSize = IntSize(40, 40)
+        val windowSize = IntSize(200, 200)
+        popupPositionProvider = ContextMenuPopupPositionProvider(
+            positionPx = originalOffset,
+            offsetPx = IntOffset.Zero,
+            windowMarginPx = paddingPx,
+        )
+
+        val expectedResult = popupPositionProvider.calculateAdjustedOffset(
+            menuSize = menuSize,
+            screenBounds = IntRect(0, 0, windowSize.width, windowSize.height)
+        )
+
+        val actualResult = popupPositionProvider.calculatePosition(
+            anchorBounds = IntRect(0, 0, 0, 0),
+            windowSize = windowSize,
+            layoutDirection = LayoutDirection.Ltr,
+            popupContentSize = menuSize,
+        )
+
+        assertEquals(expectedResult, actualResult)
     }
 }
