@@ -27,12 +27,12 @@ val defaultContextMenuTokens = ContextMenuTokens(
     menuContainerCornerRadius = 8.dp,  // contentRad + padding / 2
     menuItemCornerRadius = 4.dp,
     menuContainerPadding = 8.dp,
-    menuItemPadding = 4.dp,
-    menuItemsSpacing = 4.dp,
+    menuItemPadding = 6.dp,
+    menuItemsSpacing = 2.dp,
     menuItemIconSize = 12.dp,
     menuElevation = 16.dp,
     menuOutlineWidth = (1).dp,
     menuMaxHeight = 600.dp,
-    menuMaxWidth = 280.dp,
+    menuMaxWidth = 260.dp,
     menuMarginFromWindow = 8.dp
 )

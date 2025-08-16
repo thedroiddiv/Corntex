@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -184,11 +185,6 @@ fun MenuItemContent(
                 interactionSource = null,
                 indication = null
             )
-            .sizeIn(
-                minWidth = 112.dp,
-                maxWidth = 280.dp,
-                minHeight = 32.dp
-            )
             .padding(ContextMenuTheme.tokens.menuItemPadding),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -214,14 +210,14 @@ fun MenuItemContent(
             style = ContextMenuTheme.typography.label
         )
         Spacer(Modifier.width(8.dp))
-        Box(Modifier.size(ContextMenuTheme.tokens.menuItemIconSize)) {
+        Box(Modifier.height(ContextMenuTheme.tokens.menuItemIconSize)) {
             if (trailingIcon != null) {
                 Icon(
                     painter = trailingIcon,
                     contentDescription = null,
                     modifier = Modifier
                         .testTag("trailingIcon")
-                        .size(ContextMenuTheme.tokens.menuItemIconSize),
+                        .height(ContextMenuTheme.tokens.menuItemIconSize),
                     tint = contentColor
                 )
             }

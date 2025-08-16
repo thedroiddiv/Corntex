@@ -31,6 +31,7 @@ import com.thedroiddiv.corntex.folder
 import com.thedroiddiv.corntex.merge
 import com.thedroiddiv.corntex.paste
 import com.thedroiddiv.corntex.rebase
+import com.thedroiddiv.corntex.shift_cmd_f
 import com.thedroiddiv.menu.ContextMenuArea
 import com.thedroiddiv.menu.ContextMenuEntry
 import com.thedroiddiv.menu.ContextMenuEntry.Divider
@@ -46,7 +47,7 @@ fun DesktopApp() {
                 ContextMenuItem("New file", leadingIcon = Res.drawable.folder) { },
                 ContextMenuItem("New Folder", leadingIcon = Res.drawable.folder) { },
                 Divider,
-                ContextMenuItem("Open In Split") { },
+                ContextMenuItem("Open In Split", trailingIcon = Res.drawable.shift_cmd_f) { },
                 ContextSubmenuItem(
                     label = "Open In",
                     submenuItems = listOf(
