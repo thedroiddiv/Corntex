@@ -1,6 +1,5 @@
 package com.thedroiddiv.menu
 
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -15,7 +14,6 @@ import java.util.IdentityHashMap
 /**
  * State holder for hierarchical context menus that supports nested submenus.
  */
-// TODO: Tests for keyboard interactions
 class HierarchicalContextMenuState {
 
     /**

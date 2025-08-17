@@ -12,6 +12,9 @@ import androidx.compose.ui.window.PopupProperties
 import com.thedroiddiv.menu.components.MenuLevelContent
 import com.thedroiddiv.menu.theme.ContextMenuTheme
 
+/**
+ * A [ContextMenuRepresentation] that uses multiple [Popup]s to display a hierarchical context menu.
+ */
 class PopupContextMenuRepresentation : ContextMenuRepresentation {
     @Composable
     override fun Representation(state: HierarchicalContextMenuState) {
