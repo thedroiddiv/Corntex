@@ -61,8 +61,8 @@ mavenPublishing {
         url = "https://github.com/thedroiddiv/Corntex"
         licenses {
             license {
-                name.set("GNU General Public License v3.0")
-                url.set("https://opensource.org/license/gpl-3-0")
+                name.set("The MIT License")
+                url.set("https://opensource.org/license/mit")
             }
         }
 
