@@ -41,7 +41,7 @@ compose.resources {
 }
 
 group = "io.github.thedroiddiv"
-version = "0.0.2"
+version = "0.0.3"
 
 mavenPublishing {
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
