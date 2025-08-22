@@ -1,8 +1,17 @@
-/**
+#!/bin/bash
+
+if [ -z "$1" ]; then
+    echo "Usage: $0 <directory>"
+    exit 1
+fi
+
+TARGET_DIR="$1"
+
+HEADER="/**
  * Copyright (c) Divyansh Kushwaha <thedroiddiv@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
+ * of this software and associated documentation files (the \"Software\"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
@@ -11,7 +20,7 @@
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
@@ -19,23 +28,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+"
 
-package com.thedroiddiv.menu
-
-import androidx.compose.runtime.Stable
-import androidx.compose.ui.unit.IntOffset
-
-/**
- * Represents a single level in a hierarchical context menu.
- *
- * @param items The menu items to display at this level
- * @param focused Index of the menu item which is currently in focused state
- * @param position Screen position where this menu level should appear
- */
-@Stable
-data class MenuLevel(
-    val items: List<ContextMenuEntry>,
-    val focused: Int?,
-    val position: IntOffset,
-    val scroll: Int
-)
+find "$TARGET_DIR" -type f -name "*.kt" | while read -r file; do
+    if ! grep -q "Copyright" "$file"; then
+        echo "Adding header to $file"
+        tmpfile=$(mktemp)
+        echo "$HEADER" > "$tmpfile"
+        cat "$file" >> "$tmpfile"
+        mv "$tmpfile" "$file"
+    else
+        echo "Header already present in $file"
+    fi
+done
